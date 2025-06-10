@@ -24,11 +24,20 @@ void setup() {
   Serial.begin(115200);
 
   oled.begin();
-	oled.log("init...");
+	oled.log("AO UKE...");
 	oled.log("..display");
 
   servo.begin();
 	oled.log("..servo");
+
+	oled.log("..wifi");
+  WiFi.setHostname("AO-Ukulele");
+  WiFi.begin("Blaze", "shellycat");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+	oled.log(WiFi.localIP().toString()); // Convert IPAddress to String before logging
 
 
 
@@ -38,22 +47,46 @@ bool go = true;
 int dr = 5;
 int angle = 90;
 int frame = 0;
+int strum = 1;
 
 void loop() {
 
-	servo.set(0,angle);
-  servo.set(1,angle);
-	servo.set(2,angle);
-	servo.set(3,angle);
-	servo.set(4,angle);
-	servo.set(5,angle);
-	servo.set(6,angle);
-	servo.set(7,angle);
-	servo.set(8,angle);
 
-	// angle += frame++;
-	oled.log(angle);
-  delay(2000);
+	if (oled.button(BUTTON_A)) {
+		if (go) {
+			oled.log("pause");
+		} else {
+			oled.log("play");
+		}
+		go = !go;
+	}
+
+	if (oled.button(BUTTON_C)) {
+		int swing = 20;
+		oled.log("Strum!");
+		for (int i = 0; i<8; i++) {
+			servo.set(i, 90-swing*strum);
+		}
+		delay(200);
+		for (int i = 0; i<8; i++) {
+			delay(50);
+			servo.set(i, 90+swing*strum);
+		}
+		delay(200);
+		angle=90;
+		strum = -strum;
+		go=false;
+	}
+
+	if (go) {
+		for (int i = 0; i<8; i++) {
+			servo.set(i, 70 + frame%(20+i));
+		}
+	}
+
+	frame++;
+	// oled.log(angle);
+  delay(100);
   yield();
 
 }

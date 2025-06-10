@@ -41,6 +41,7 @@ public:
 		void log(int value);
 		void log(String value);
 		void printLogs();
+		bool button(int button);
 private:
     Adafruit_SH1107 display;
 		void initDisplay();

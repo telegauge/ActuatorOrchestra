@@ -36,6 +36,7 @@ const unsigned char logo [] PROGMEM = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
+#define LOG_X 50
 #define LOG_SIZE 6
 String logs[LOG_SIZE];
 
@@ -63,12 +64,16 @@ void OledDisplay::log(const char* text) {
 	log(String(text));
 }
 
+bool OledDisplay::button(int button) {
+	return digitalRead(button) != HIGH;
+}
+
 void OledDisplay::printLogs() {
-	clear(54,0 ,128-54-10,64);
+	clear(LOG_X,0 ,128-LOG_X,64);
 
 	display.setRotation(3);
 	for (int i = 0; i < LOG_SIZE; i++) {
-		print(logs[i].c_str(),54, i * 10);
+		print(logs[i].c_str(),LOG_X, i * 10);
 	}
 }
 
@@ -96,5 +101,5 @@ void OledDisplay::print(const char* text, int x, int y) {
 
 void OledDisplay::clear(int x, int y, int width, int height) {
 	display.fillRect(x, y, width, height, SH110X_BLACK);
-	display.display();
+	// display.display();
 }
