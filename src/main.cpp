@@ -61,6 +61,14 @@ void loop() {
 		go = !go;
 	}
 
+	if (oled.button(BUTTON_B)) {
+		oled.log("Home");
+		for (int i = 0; i<8; i++) {
+			servo.set(i, 90);
+		}
+		go=false;
+	}
+
 	if (oled.button(BUTTON_C)) {
 		int swing = 20;
 		oled.log("Strum!");
@@ -80,7 +88,7 @@ void loop() {
 
 	if (go) {
 		for (int i = 0; i<8; i++) {
-			servo.set(i, 70 + frame%(20+i));
+			servo.set(i, 70 + frame%(50+i));
 		}
 	}
 
