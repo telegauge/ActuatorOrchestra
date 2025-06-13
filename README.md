@@ -82,4 +82,5 @@ Defined in `platformio.ini`:
 
 ## Connect
 
-![Bluesky](https://img.shields.io/badge/-Bluesky-3686f7?style=flat&logo=icloud&logoColor=white) [@acutatororchestra.bsky.social](https://bsky.app/profile/acutatororchestra.bsky.social)
+![Bluesky](https://img.shields.io/badge/-Bluesky-3686f7?style=flat&logo=icloud&logoColor=white)
+[@acutatororchestra.bsky.social](https://bsky.app/profile/acutatororchestra.bsky.social)
