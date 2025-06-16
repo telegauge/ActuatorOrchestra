@@ -1,0 +1,46 @@
+{
+  "instrument": "ukulele",
+  "strings": 4,
+  "actuators": [
+    {
+      "name": "A",
+      "type": "strummer",
+      "pin": 3,
+      "options": {
+        "swing_low": 80,
+        "swing_high": 110,
+        "swing_home": 90
+      }
+    },
+    {
+      "name": "E",
+      "type": "strummer",
+      "pin": 2,
+      "options": {
+        "swing_low": 80,
+        "swing_high": 110,
+        "swing_home": 90
+      }
+    },
+    {
+      "name": "C",
+      "type": "strummer",
+      "pin": 1,
+      "options": {
+        "swing_low": 80,
+        "swing_high": 110,
+        "swing_home": 90
+      }
+    },
+    {
+      "name": "G",
+      "type": "strummer",
+      "pin": 0,
+      "options": {
+        "swing_low": 80,
+        "swing_high": 110,
+        "swing_home": 90
+      }
+    }
+  ]
+}

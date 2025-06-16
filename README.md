@@ -1,32 +1,44 @@
 # Actuator Orchestra
 
-Actuator Orchestra is a project wherein a device is
-  strapped to an instrument (like a Ukulele) and
-	a series of servos or solonoids "play" the instrument.
+Actuator Orchestra is a modular system for robotic musical instruments. Each instrument (e.g., Ukulele, Drum, etc.) is controlled by its own board (e.g., Adafruit Feather ESP32), and can be configured and coordinated to play music together.
 
-In the short term, there's this Ukulele.
+---
 
-In the long term, multiple instruments should be able
-  to work together to make a band.
-  *Dueling Banjos* is a reasonable goal.  
-  *Tom Sawyer* is more of a challenge.  
-  *Bohemian Rhapsody* is ... well, that's unlikely.
+## New Architecture (2024+)
+
+- **Multi-instrument support:** Each instrument is defined by a configuration file (see `config/`).
+- **Modular actuators:** Each actuator (servo, solenoid, etc.) is managed by its own class, instantiated based on config.
+- **Timing engine:** Each board can play notes at precise times, and synchronize with others for ensemble performance.
+- **Song files (future):** Songs will be defined in files and played by the system.
+- **Old code:** Previous implementation is preserved in the `old/` directory.
+
+### Directory Structure
+
+- `src/` - Main application code (new architecture)
+- `lib/` - Custom libraries (actuators, timing, etc.)
+- `include/` - Project headers
+- `config/` - Instrument configuration files (JSON)
+- `test/` - Unit tests
+- `old/` - Previous codebase (for reference)
+
+---
 
 ## Features
 
-- Controls up to 8 servos (so far) via I2C PWM driver
-- Interactive OLED display with button controls
-- WiFi connectivity to receive commands from a web app (tbd)
-- Modular code with custom libraries for display and servo control
+- Controls multiple actuators (servos, solenoids, etc.) via I2C PWM or GPIO
+- Configurable instruments (number of strings, actuator types, etc.)
+- Interactive OLED display with button controls (optional)
+- WiFi connectivity for synchronization (future)
+- Modular code for easy expansion
 
 ## Hardware Requirements
 
-- A Ukulele
+- Instrument (e.g., Ukulele)
 - [Adafruit Feather ESP32 V2](https://www.adafruit.com/product/5400)
-- [Adafruit SH1107 128x64 OLED FeatherWing](https://www.adafruit.com/product/4650)
+- [Adafruit SH1107 128x64 OLED FeatherWing](https://www.adafruit.com/product/4650) (optional)
 - [Adafruit 16-Channel 12-bit PWM/Servo Driver - I2C interface (PCA9685)](https://www.adafruit.com/product/815)
-- Up to 8 servos (for actuation)
-- Pushbuttons (or, integrated on OLED FeatherWing)
+- Actuators (servos, solenoids, etc.)
+- Pushbuttons (optional)
 
 ## Software Requirements
 
@@ -56,21 +68,18 @@ In the long term, multiple instruments should be able
 
 ## Usage
 
-As of June, 2025
-
-- **Button A**: Toggle play/pause of the servo sequence
-- **Button B**: Home all servos (set to neutral position)
-- **Button C**: Perform a strum action with all servos
-- The OLED displays logs and status messages
+- Configure your instrument in `config/` (see example `ukulele.json`)
+- Upload firmware to your board
+- (Future) Play a song file to coordinate multiple instruments
 
 ## Project Structure
 
 - `src/` - Main application code
-- `lib/` - The Library
-  - `servo/` - Servo control logic
-  - `oled/` - Display tools (and buttons, oddly)
+- `lib/` - Custom libraries (actuators, timing, etc.)
 - `include/` - Project headers
-- `test/` - (Optional) Unit tests
+- `config/` - Instrument configuration files
+- `test/` - Unit tests
+- `old/` - Previous codebase
 
 ## Dependencies
 

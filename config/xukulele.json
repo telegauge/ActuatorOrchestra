@@ -1,0 +1,10 @@
+{
+  "instrument": "ukulele",
+  "strings": 4,
+  "actuators": [
+    { "type": "strummer", "pin": 12 },
+    { "type": "strummer", "pin": 13 },
+    { "type": "strummer", "pin": 14 },
+    { "type": "strummer", "pin": 15 }
+  ]
+}

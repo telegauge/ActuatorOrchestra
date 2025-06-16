@@ -1,0 +1,47 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Actuator Orchestra Project Structure and Navigation
+
+## Overview
+This project is a PlatformIO-based firmware for controlling servos and an OLED display, designed to automate the playing of a ukulele (or other instruments) using an ESP32 microcontroller. The codebase is modular, with custom libraries for display and servo control.
+
+When supplying results, minimuze the words and explaination.  Prioritize readable code.
+
+## Main Directories
+- [`src/`](mdc:src): Contains the main application entry point ([main.cpp](mdc:src/main.cpp)).
+- [`lib/`](mdc:lib): Contains project-specific libraries:
+  - [`oled/`](mdc:lib/oled): OLED display and button handling ([OledDisplay.h](mdc:lib/oled/OledDisplay.h), [OledDisplay.cpp](mdc:lib/oled/OledDisplay.cpp)).
+  - [`servo/`](mdc:lib/servo): Servo control logic ([ServoController.h](mdc:lib/servo/ServoController.h), [ServoController.cpp](mdc:lib/servo/ServoController.cpp)).
+- [`include/`](mdc:include): Intended for public/project-wide header files (currently contains a README).
+- [`test/`](mdc:test): For PlatformIO unit tests (currently contains a README).
+
+## Main Application
+- [`src/main.cpp`](mdc:src/main.cpp):
+  - Instantiates and uses `OledDisplay` and `ServoController`.
+  - Handles button input, mode switching, and servo actuation logic.
+  - WiFi setup and status logging to the OLED.
+
+## Libraries
+- [`lib/oled/OledDisplay.h`](mdc:lib/oled/OledDisplay.h):
+  - Provides an interface for OLED display output and button input.
+  - Handles logging, screen clearing, and button state reading.
+- [`lib/servo/ServoController.h`](mdc:lib/servo/ServoController.h):
+  - Provides an interface for controlling up to 8 servos via I2C PWM driver.
+  - Includes methods for setting servo angles and updating their state.
+
+## Build System
+- [`platformio.ini`](mdc:platformio.ini):
+  - Defines the PlatformIO environment, board, and library dependencies.
+
+## Usage Notes
+- Button mappings are defined in [`OledDisplay.h`](mdc:lib/oled/OledDisplay.h) and depend on the board type.
+- The main loop in [`main.cpp`](mdc:src/main.cpp) handles play/pause, servo selection, and mode switching (strum/tuning).
+
+## Adding New Libraries
+- Place new libraries in their own subdirectory under [`lib/`](mdc:lib), following the pattern of `oled/` and `servo/`.
+- Each library should have its own header and source files.
+
+
