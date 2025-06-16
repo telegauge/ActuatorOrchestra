@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include "../ConfigLoader/ConfigLoader.h"
-#include "../ServoStrummer/ServoStrummer.h"
+#include "../Plucker/Plucker.h"
 #include <Adafruit_PWMServoDriver.h>
 
 class Ukulele
@@ -20,7 +20,7 @@ public:
 	std::string stringName(int idx) const;
 
 private:
-	std::vector<ServoStrummer *> strummers;
+	std::vector<Plucker *> pluckers;
 };
 
 #endif // UKULELE_H

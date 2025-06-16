@@ -7,7 +7,6 @@
 #include "../lib/ActuatorFactory/ActuatorFactory.h"
 #include "../lib/TimingEngine/TimingEngine.h"
 #include "../lib/OledDisplay/OledDisplay.h"
-#include "../lib/ServoStrummer/ServoStrummer.h"
 #include "../lib/Ukulele/Ukulele.h"
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();

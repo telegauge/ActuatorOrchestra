@@ -1,5 +1,5 @@
 #include "ActuatorFactory.h"
-#include "../ServoStrummer/ServoStrummer.h"
+#include "../Plucker/Plucker.h"
 #include "../ConfigLoader/ConfigLoader.h"
 
 std::vector<Actuator *> ActuatorFactory::createActuators(const std::vector<ActuatorConfig> &configs, Adafruit_PWMServoDriver *pwm)
@@ -9,21 +9,21 @@ std::vector<Actuator *> ActuatorFactory::createActuators(const std::vector<Actua
 	{
 		if (conf.type == "strummer")
 		{
-			actuators.push_back(new ServoStrummer(conf.pin, pwm, conf.name));
+			actuators.push_back(new Plucker(conf.pin, pwm, conf.name));
 		}
 		// Add more actuator types here as needed
 	}
 	return actuators;
 }
 
-std::vector<ServoStrummer *> ActuatorFactory::createStrummers(const std::vector<ActuatorConfig> &configs, Adafruit_PWMServoDriver *pwm)
+std::vector<Plucker *> ActuatorFactory::createStrummers(const std::vector<ActuatorConfig> &configs, Adafruit_PWMServoDriver *pwm)
 {
-	std::vector<ServoStrummer *> strummers;
+	std::vector<Plucker *> strummers;
 	for (const auto &conf : configs)
 	{
 		if (conf.type == "strummer")
 		{
-			strummers.push_back(new ServoStrummer(conf.pin, pwm, conf.name));
+			strummers.push_back(new Plucker(conf.pin, pwm, conf.name));
 		}
 	}
 	return strummers;
