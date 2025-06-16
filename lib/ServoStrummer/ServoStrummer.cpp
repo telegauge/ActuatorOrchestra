@@ -11,26 +11,13 @@ void ServoStrummer::begin()
 {
 	_pwm->begin();
 	_pwm->setPWMFreq(50); // Standard servo frequency (50 Hz)
-
-	// static bool freqSet = false;
-	// if (!freqSet)
-	// {
-	// 	_pwm->setPWMFreq(50); // Analog servos run at ~50 Hz
-	// 	freqSet = true;
-	// }
-	// // Optionally initialize servo to home position
-	// _pwm->setPWM(_pin, 0, _homePosition);
 }
 
 void ServoStrummer::actuate(int degrees)
 {
-	// value could be a position or a strum command
-	// For now, treat as direct position
-	// int pulse = constrain(value, SERVO_MIN, SERVO_MAX);
 	int pulse = map(degrees, 0, 180, SERVO_MIN, SERVO_MAX);
 
 	_pwm->setPWM(_pin, 0, pulse);
-	Serial.printf("Strumming %s to %d\n", _name.c_str(), degrees);
 }
 
 void ServoStrummer::strum(int duration_ms)
@@ -38,8 +25,8 @@ void ServoStrummer::strum(int duration_ms)
 	int swing_degrees = 20;		 // how far out to swing
 	int overshoot_degrees = 2; // how far back to home, plus a bit extra to mute the string
 	actuate(_homePosition + _direction * swing_degrees);
-	delay(duration_ms);
-	actuate(_homePosition - _direction * overshoot_degrees);
+	// delay(duration_ms);
+	// actuate(_homePosition - _direction * overshoot_degrees);
 	_direction = -_direction;
 }
 

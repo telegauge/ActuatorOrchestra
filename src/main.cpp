@@ -16,6 +16,7 @@ OledDisplay oled;
 
 const int STRUM_SWING_DEGREES = 30;
 const int STRUM_DURATION_MS = 150;
+bool paused = false;
 
 void setup()
 {
@@ -56,11 +57,30 @@ void setup()
 
 void loop()
 {
-	int duration = 200;
-	// oled.log(String("Main ") + strummers[0]->name().c_str());
-	strummers[0]->strum(duration);
-	strummers[1]->strum(duration);
-	strummers[2]->strum(duration);
-	strummers[3]->strum(duration);
-	// delay(1000); // Slow down log spam for visibility
+	int duration = 1000;
+	int pause = 20;
+	// Serial.println("Loop...");
+	if (oled.button(BUTTON_A))
+	{
+		paused = !paused;
+		oled.log(paused ? "Paused" : "Playing");
+		delay(300); // debounce
+		for (auto *s : strummers)
+			s->home();
+	}
+	if (!paused)
+	{
+		strummers[0]->strum(duration);
+		delay(pause);
+		strummers[1]->strum(duration);
+		delay(pause);
+		strummers[2]->strum(duration);
+		delay(pause);
+		strummers[3]->strum(duration);
+		delay(pause);
+		delay(250);
+		strummers[0]->strum(duration);
+	}
+	delay(250);
+	// delay(1000); // optional: slow down loop
 }
