@@ -12,7 +12,7 @@ public:
 	void actuate(int degrees) override; // value could be angle or strum command
 	void home() override;
 
-	void strum(int duration_ms);
+	void pluck(int duration_ms);
 
 	std::string name() override;
 

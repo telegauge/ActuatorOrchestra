@@ -8,9 +8,10 @@
 #include "../lib/TimingEngine/TimingEngine.h"
 #include "../lib/OledDisplay/OledDisplay.h"
 #include "../lib/ServoStrummer/ServoStrummer.h"
+#include "../lib/Ukulele/Ukulele.h"
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
-std::vector<ServoStrummer *> strummers;
+Ukulele *ukulele = nullptr;
 TimingEngine timingEngine;
 OledDisplay oled;
 
@@ -44,14 +45,9 @@ void setup()
 	oled.log("Config OK");
 	oled.log(config.instrument.c_str());
 
-	strummers = ActuatorFactory::createStrummers(config.actuators, &pwm);
-	oled.log("Strummers...");
-	for (auto *s : strummers)
-	{
-		oled.log(s->name().c_str());
-		s->begin();
-		s->home();
-	}
+	ukulele = new Ukulele(config, &pwm);
+	ukulele->begin();
+	ukulele->home();
 	oled.log("Ready");
 }
 
@@ -59,28 +55,18 @@ void loop()
 {
 	int duration = 1000;
 	int pause = 20;
-	// Serial.println("Loop...");
 	if (oled.button(BUTTON_A))
 	{
 		paused = !paused;
 		oled.log(paused ? "Paused" : "Playing");
 		delay(300); // debounce
-		for (auto *s : strummers)
-			s->home();
+		ukulele->home();
 	}
 	if (!paused)
 	{
-		strummers[0]->strum(duration);
-		delay(pause);
-		strummers[1]->strum(duration);
-		delay(pause);
-		strummers[2]->strum(duration);
-		delay(pause);
-		strummers[3]->strum(duration);
-		delay(pause);
+		ukulele->strum(duration);
 		delay(250);
-		strummers[0]->strum(duration);
+		ukulele->pluck(0, duration);
 	}
-	delay(250);
-	// delay(1000); // optional: slow down loop
+	delay(500);
 }

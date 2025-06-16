@@ -20,7 +20,7 @@ void ServoStrummer::actuate(int degrees)
 	_pwm->setPWM(_pin, 0, pulse);
 }
 
-void ServoStrummer::strum(int duration_ms)
+void ServoStrummer::pluck(int duration_ms)
 {
 	int swing_degrees = 20;		 // how far out to swing
 	int overshoot_degrees = 2; // how far back to home, plus a bit extra to mute the string
