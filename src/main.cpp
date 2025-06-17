@@ -23,8 +23,9 @@ bool pressed[] = {false, false, false, false};
 void setup()
 {
 	Serial.begin(115200);
-	delay(1000); // wait for the servos to home, and the terminal to catch up
+	delay(500); // wait for the servos to home, and the terminal to catch up
 	oled.begin();
+
 	oled.log("Booting...");
 	if (!SPIFFS.begin(true))
 	{
@@ -47,9 +48,10 @@ void setup()
 	oled.log("Config OK");
 	oled.log(config.instrument.c_str());
 
-	ukulele = new Ukulele(config, &pwm);
+	ukulele = new Ukulele(config, &pwm, &oled);
 	ukulele->begin();
 	ukulele->home();
+
 	oled.log("Ready");
 }
 
@@ -74,9 +76,11 @@ bool Bools[][4] = {
 
 void loop()
 {
+	Serial.println("Loop");
+	// oled.log("Loop");
 	int ms = millis();
 	int duration = 1000;
-	int pause = 300;
+	int pause = 1000;
 	if (oled.button(BUTTON_A))
 	{
 		Serial.printf("Button A %d\n", pressed[BUTTON_A]);
@@ -121,10 +125,10 @@ void loop()
 
 		for (int i = 0; i < 16; i++)
 		{
-			char buf[32];
-			snprintf(buf, sizeof(buf), "Pos %d", i);
-			oled.log(buf);
-			Serial.printf("Pos %d\n", i);
+			// char buf[32];
+			// snprintf(buf, sizeof(buf), "Pos %d", i);
+			// oled.log(buf);
+			// Serial.printf("Pos %d\n", i);
 			std::vector<bool> fret_positions(Bools[i], Bools[i] + 4);
 			ukulele->fret(0, fret_positions);
 			delay(pause);
@@ -135,5 +139,6 @@ void loop()
 		delay(20);
 	}
 	// delay(500);
-	delay(5);
+	yield();
+	delay(500);
 }

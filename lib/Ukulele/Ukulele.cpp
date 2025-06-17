@@ -2,7 +2,8 @@
 #include <string>
 #include <map>
 
-Ukulele::Ukulele(const InstrumentConfig &config, Adafruit_PWMServoDriver *pwm)
+Ukulele::Ukulele(const InstrumentConfig &config, Adafruit_PWMServoDriver *pwm, OledDisplay *oled_display)
+		: oled(oled_display)
 {
 	for (const auto &a : config.pluckers)
 	{
@@ -84,11 +85,10 @@ void Ukulele::test()
 // Strum all the strings
 void Ukulele::strum(int duration_ms)
 {
-	Serial.println("Strum");
 	for (auto *s : pluckers)
 	{
 		s->pluck();
-		delay(200);
+		delay(10);
 	}
 	if (duration_ms > 0)
 	{
@@ -120,12 +120,17 @@ void Ukulele::fret(int fret_number, const std::vector<bool> &pressed)
 	key_right += pressed[2] ? '1' : '0';
 	key_right += pressed[3] ? '1' : '0';
 	const std::map<std::string, int> fret_map = {
-			{"00", 0},
-			{"01", 60},
-			{"10", 120},
-			{"11", 180}};
+			{"00", 180},
+			{"01", 120},
+			{"10", 0},
+			{"11", 60}};
 
 	fretters[fret_number]->fret(fret_map.at(key_left), fret_map.at(key_right));
+
+	oled->grid(4, fret_number, pressed[0]);
+	oled->grid(3, fret_number, pressed[1]);
+	oled->grid(2, fret_number, pressed[2]);
+	oled->grid(1, fret_number, pressed[3]);
 }
 
 int Ukulele::numStrings() const

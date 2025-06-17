@@ -1,5 +1,7 @@
 #include "OledDisplay.h"
 
+// https://learn.adafruit.com/adafruit-gfx-graphics-library
+
 const unsigned char logo[] PROGMEM = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -34,9 +36,21 @@ const unsigned char logo[] PROGMEM = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-#define LOG_X 50
-#define LOG_SIZE 6
+#define LOG_X 0
+#define LOG_Y 86
+#define LOG_WIDTH 64
+#define LOG_HEIGHT 42
+#define LOG_SIZE 4
 String logs[LOG_SIZE];
+
+#define GRID_X 0
+#define GRID_Y 0
+#define GRID_WIDTH 64
+#define GRID_HEIGHT 85
+#define GRID_MARGIN 1
+
+#define STRINGS 4
+#define FRETS 6
 
 OledDisplay::OledDisplay() : display(64, 128, &Wire)
 {
@@ -44,7 +58,56 @@ OledDisplay::OledDisplay() : display(64, 128, &Wire)
 
 void OledDisplay::begin()
 {
+	pinMode(BUTTON_A, INPUT_PULLUP);
+	pinMode(BUTTON_B, INPUT_PULLUP);
+	pinMode(BUTTON_C, INPUT_PULLUP);
+
 	initDisplay();
+	delay(500);
+	initGrid();
+}
+
+void OledDisplay::initDisplay()
+{
+	display.begin(0x3C, true); // Address 0x3C default
+	display.clearDisplay();
+	display.setRotation(2);
+	display.setTextSize(1);
+	display.setTextColor(SH110X_WHITE);
+
+	display.drawBitmap(0, (GRID_HEIGHT - 64) / 2, logo, 64, 64, SH110X_WHITE);
+
+	line(LOG_X, LOG_Y - 1, LOG_X + LOG_WIDTH, LOG_Y - 1);
+
+	printLogs();
+	display.display();
+}
+
+void OledDisplay::initGrid()
+{
+	int margin = GRID_MARGIN;
+
+	clear(GRID_X, GRID_Y, GRID_WIDTH, GRID_HEIGHT);
+
+	int X = margin + GRID_X;
+	int Y = margin + GRID_Y;
+	float dx = (GRID_WIDTH - 2 * margin) / STRINGS;
+	float dy = (GRID_HEIGHT - 2 * margin) / FRETS;
+	int W = STRINGS * dx;
+	int H = FRETS * dy;
+
+	Serial.printf("dx: %f, dy: %f\n", dx, dy);
+
+	for (float x = 0; x <= STRINGS; x++)
+	{
+		line(X + x * dx, Y, X + x * dx, Y + H);
+		for (float y = 0; y <= FRETS; y++)
+		{
+			line(X, Y + y * dy, X + W, Y + y * dy);
+		}
+	}
+
+	display.display();
 }
 
 void OledDisplay::log(int value)
@@ -76,30 +139,13 @@ bool OledDisplay::button(int button)
 
 void OledDisplay::printLogs()
 {
-	clear(LOG_X, 0, 128 - LOG_X, 64);
+	clear(LOG_X, LOG_Y, LOG_WIDTH, LOG_HEIGHT);
+	display.setTextColor(SH110X_WHITE);
 
-	display.setRotation(3);
 	for (int i = 0; i < LOG_SIZE; i++)
 	{
-		print(logs[i].c_str(), LOG_X, i * 10);
-		Serial.println("LOG> " + logs[i]);
+		print(logs[i].c_str(), LOG_X, LOG_Y + i * 10 + 2);
 	}
-}
-
-void OledDisplay::initDisplay()
-{
-	display.begin(0x3C, true); // Address 0x3C default
-	display.clearDisplay();
-	display.setRotation(3);
-	display.setTextSize(1);
-	display.setTextColor(SH110X_WHITE);
-	display.drawBitmap(-10, 0, logo, 64, 64, SH110X_WHITE);
-
-	pinMode(BUTTON_A, INPUT_PULLUP);
-	pinMode(BUTTON_B, INPUT_PULLUP);
-	pinMode(BUTTON_C, INPUT_PULLUP);
-
-	printLogs();
 	display.display();
 }
 
@@ -107,11 +153,28 @@ void OledDisplay::print(const char *text, int x, int y)
 {
 	display.setCursor(x, y);
 	display.print(text);
+}
+
+void OledDisplay::line(int x1, int y1, int x2, int y2)
+{
+	Serial.printf("Line %d %d %d %d\n", x1, y1, x2, y2);
+	display.drawLine(x1, y1, x2, y2, SH110X_WHITE);
+}
+
+void OledDisplay::grid(int string, int fret, bool state)
+{
+	int margin = GRID_MARGIN;
+	int dx = (GRID_WIDTH - 2 * margin) / STRINGS;
+	int dy = (GRID_HEIGHT - 2 * margin) / FRETS;
+	int x = GRID_X + string * dx;
+	int y = GRID_Y + fret * dy;
+	display.fillRect(x + 2 + 1, y + 2 + 1, dx - 4, dy - 4, state ? SH110X_WHITE : SH110X_BLACK);
 	display.display();
 }
 
 void OledDisplay::clear(int x, int y, int width, int height)
 {
+	Serial.printf("Clear %d %d %d %d\n", x, y, width, height);
 	display.fillRect(x, y, width, height, SH110X_BLACK);
 	// display.display();
 }

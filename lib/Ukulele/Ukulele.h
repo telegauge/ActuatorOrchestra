@@ -7,12 +7,13 @@
 #include "../Plucker/Plucker.h"
 #include "../Fretter/Fretter.h"
 #include "../Instrument/Instrument.h"
+#include "../OledDisplay/OledDisplay.h"
 #include <Adafruit_PWMServoDriver.h>
 
 class Ukulele : public Instrument
 {
 public:
-	Ukulele(const InstrumentConfig &config, Adafruit_PWMServoDriver *pwm);
+	Ukulele(const InstrumentConfig &config, Adafruit_PWMServoDriver *pwm, OledDisplay *oled);
 	~Ukulele();
 	void begin() override;
 	void loop(int ms) override;
@@ -29,6 +30,7 @@ public:
 private:
 	std::vector<Plucker *> pluckers;
 	std::vector<Fretter *> fretters;
+	OledDisplay *oled;
 };
 
 #endif // UKULELE_H

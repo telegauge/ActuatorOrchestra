@@ -25,26 +25,36 @@
 #define BUTTON_A 31
 #define BUTTON_B 30
 #define BUTTON_C 27
-#else  // 32u4, M0, M4, nrf52840, esp32-s2, esp32-s3 and 328p
+#else // 32u4, M0, M4, nrf52840, esp32-s2, esp32-s3 and 328p
 #define BUTTON_A 9
 #define BUTTON_B 6
 #define BUTTON_C 5
 #endif
 
-class OledDisplay {
+class OledDisplay
+{
 public:
-    OledDisplay();
-    void begin();
-		void print(const char* text, int x, int y);
-		void clear(int x, int y, int width, int height);
-		void log(const char* text);
-		void log(int value);
-		void log(String value);
-		void printLogs();
-		bool button(int button);
+	OledDisplay();
+	void begin();
+	void clear(int x, int y, int width, int height);
+
+	void print(const char *text, int x, int y);
+	void line(int x1, int y1, int x2, int y2);
+	// void line(float x1, float y1, float x2, float y2);
+
+	void grid(int string, int fret, bool state);
+
+	void log(const char *text);
+	void log(int value);
+	void log(String value);
+
+	void printLogs();
+	bool button(int button);
+
 private:
-    Adafruit_SH1107 display;
-		void initDisplay();
+	Adafruit_SH1107 display;
+	void initDisplay();
+	void initGrid();
 };
 
-#endif // OLED_DISPLAY_H 
+#endif // OLED_DISPLAY_H
