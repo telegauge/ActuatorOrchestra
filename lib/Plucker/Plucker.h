@@ -17,7 +17,6 @@ public:
 private:
 	uint8_t _pin;
 	Adafruit_PWMServoDriver *_pwm;
-	int _homePosition;
 	int _direction = 1;
 	std::string _name;
 };

@@ -13,11 +13,21 @@ struct ActuatorConfig
 	JsonObject options;
 };
 
+struct FretterConfig
+{
+	std::string type;
+	int pin1;
+	int pin2;
+	std::string name;
+	JsonObject options;
+};
+
 struct InstrumentConfig
 {
 	std::string instrument;
 	int strings;
-	std::vector<ActuatorConfig> actuators;
+	std::vector<ActuatorConfig> pluckers;
+	std::vector<FretterConfig> fretters;
 };
 
 class ConfigLoader

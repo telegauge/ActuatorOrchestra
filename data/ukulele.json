@@ -1,10 +1,10 @@
 {
   "instrument": "ukulele",
   "strings": 4,
-  "actuators": [
+  "pluckers": [
     {
       "name": "A",
-      "type": "strummer",
+      "type": "plucker",
       "pin": 3,
       "options": {
         "swing_low": 80,
@@ -14,7 +14,7 @@
     },
     {
       "name": "E",
-      "type": "strummer",
+      "type": "plucker",
       "pin": 2,
       "options": {
         "swing_low": 80,
@@ -24,7 +24,7 @@
     },
     {
       "name": "C",
-      "type": "strummer",
+      "type": "plucker",
       "pin": 1,
       "options": {
         "swing_low": 80,
@@ -34,12 +34,32 @@
     },
     {
       "name": "G",
-      "type": "strummer",
+      "type": "plucker",
       "pin": 0,
       "options": {
         "swing_low": 80,
         "swing_high": 110,
         "swing_home": 90
+      }
+    }
+  ],
+  "fretters": [
+    {
+      "name": "Fret 1",
+      "type": "fretter",
+      "pin_left": 4,
+      "pin_right": 5,
+      "options": {
+        "positions": [0, 60, 120, 180]
+      }
+    },
+    {
+      "name": "Fret 2",
+      "type": "fretter",
+      "pin_left": 6,
+      "pin_right": 7,
+      "options": {
+        "positions": [0, 60, 120, 180]
       }
     }
   ]

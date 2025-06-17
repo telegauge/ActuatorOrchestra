@@ -21,6 +21,7 @@ bool paused = false;
 void setup()
 {
 	Serial.begin(115200);
+	delay(1000); // wait for the servos to home, and the terminal to catch up
 	oled.begin();
 	oled.log("Booting...");
 	if (!SPIFFS.begin(true))
@@ -53,7 +54,7 @@ void setup()
 void loop()
 {
 	int duration = 1000;
-	int pause = 20;
+	int pause = 2000;
 	if (oled.button(BUTTON_A))
 	{
 		paused = !paused;
@@ -63,9 +64,57 @@ void loop()
 	}
 	if (!paused)
 	{
-		ukulele->strum(duration);
-		delay(250);
-		ukulele->pluck(0, duration);
+		// ukulele->strum(duration);
+		ukulele->fret(0, {false, false, false, false});
+		ukulele->strum(1000);
+		delay(pause);
+		ukulele->fret(0, {false, false, false, true});
+		ukulele->strum(1000);
+		delay(pause);
+		ukulele->fret(0, {false, false, true, false});
+		ukulele->strum(1000);
+		delay(pause);
+		ukulele->fret(0, {false, false, true, true});
+		ukulele->strum(1000);
+		delay(pause);
+		ukulele->fret(0, {false, true, false, false});
+		delay(pause);
+		ukulele->strum(1000);
+		ukulele->fret(0, {false, true, false, true});
+		delay(pause);
+		ukulele->strum(1000);
+		ukulele->fret(0, {false, true, true, false});
+		delay(pause);
+		ukulele->strum(1000);
+		ukulele->fret(0, {false, true, true, true});
+		delay(pause);
+		ukulele->strum(1000);
+		ukulele->fret(0, {true, false, false, false});
+		delay(pause);
+		ukulele->strum(1000);
+		ukulele->fret(0, {true, false, false, true});
+		delay(pause);
+		ukulele->strum(1000);
+		ukulele->fret(0, {true, false, true, false});
+		delay(pause);
+		ukulele->strum(1000);
+		ukulele->fret(0, {true, false, true, true});
+		delay(pause);
+		ukulele->strum(1000);
+		ukulele->fret(0, {true, true, false, false});
+		delay(pause);
+		ukulele->strum(1000);
+		ukulele->fret(0, {true, true, false, true});
+		delay(pause);
+		ukulele->strum(1000);
+		ukulele->fret(0, {true, true, true, false});
+		delay(pause);
+		ukulele->strum(1000);
+		ukulele->fret(0, {true, true, true, true});
+		delay(pause);
+		ukulele->strum(1000);
+		ukulele->home();
+		Serial.println(" ");
 	}
-	delay(500);
+	delay(5000);
 }

@@ -16,7 +16,7 @@ bool ConfigLoader::loadConfig(const char *filename, InstrumentConfig &config)
 	buf[size] = '\0';
 	file.close();
 
-	StaticJsonDocument<1024> doc;
+	StaticJsonDocument<2048> doc;
 	DeserializationError error = deserializeJson(doc, buf.get());
 	if (error)
 	{
@@ -25,15 +25,26 @@ bool ConfigLoader::loadConfig(const char *filename, InstrumentConfig &config)
 
 	config.instrument = doc["instrument"].as<std::string>();
 	config.strings = doc["strings"];
-	config.actuators.clear();
-	for (JsonObject act : doc["actuators"].as<JsonArray>())
+	config.pluckers.clear();
+	config.fretters.clear();
+	for (JsonObject act : doc["pluckers"].as<JsonArray>())
 	{
 		ActuatorConfig aconf;
 		aconf.type = act["type"].as<std::string>();
 		aconf.pin = act["pin"];
 		aconf.name = act["name"].as<std::string>();
 		aconf.options = act["options"];
-		config.actuators.push_back(aconf);
+		config.pluckers.push_back(aconf);
+	}
+	for (JsonObject fret : doc["fretters"].as<JsonArray>())
+	{
+		FretterConfig fconf;
+		fconf.type = fret["type"].as<std::string>();
+		fconf.pin1 = fret["pin_left"];
+		fconf.pin2 = fret["pin_right"];
+		fconf.name = fret["name"].as<std::string>();
+		fconf.options = fret["options"];
+		config.fretters.push_back(fconf);
 	}
 	return true;
 }
