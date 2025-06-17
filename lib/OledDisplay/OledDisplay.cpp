@@ -59,7 +59,7 @@ void OledDisplay::log(String value)
 		logs[i] = logs[i + 1];
 	}
 	logs[LOG_SIZE - 1] = value;
-	Serial.println(value);
+	Serial.println("> " + value);
 	printLogs();
 	display.display();
 }
@@ -82,6 +82,7 @@ void OledDisplay::printLogs()
 	for (int i = 0; i < LOG_SIZE; i++)
 	{
 		print(logs[i].c_str(), LOG_X, i * 10);
+		Serial.println("LOG> " + logs[i]);
 	}
 }
 

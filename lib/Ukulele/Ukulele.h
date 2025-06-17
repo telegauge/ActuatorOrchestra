@@ -6,17 +6,20 @@
 #include "../ConfigLoader/ConfigLoader.h"
 #include "../Plucker/Plucker.h"
 #include "../Fretter/Fretter.h"
+#include "../Instrument/Instrument.h"
 #include <Adafruit_PWMServoDriver.h>
 
-class Ukulele
+class Ukulele : public Instrument
 {
 public:
 	Ukulele(const InstrumentConfig &config, Adafruit_PWMServoDriver *pwm);
 	~Ukulele();
-	void begin();
-	void home();
-	void strum(int duration_ms);
-	void pluck(int idx, int duration_ms);
+	void begin() override;
+	void loop(int ms) override;
+	void home() override;
+	void test();
+	void strum(int duration_ms = 0);
+	void pluck(int idx, int duration_ms = 0);
 	void fret(int fret_number, const std::vector<bool> &pressed);
 	int numStrings() const;
 	std::string stringName(int idx) const;

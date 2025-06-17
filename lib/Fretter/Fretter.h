@@ -12,6 +12,8 @@ public:
 	void begin() override;
 	void actuate(int left_value, int right_value);
 	void home() override;
+	void minmax(int duration_ms);
+	void loop(int ms) override;
 	void fret(int left_degrees, int right_degrees);
 	void actuate(int value) override;
 	std::string name() override;

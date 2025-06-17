@@ -36,6 +36,37 @@ void Ukulele::begin()
 		f->begin();
 }
 
+void Ukulele::loop(int ms)
+{
+	if (command_queue.size() > 0)
+	{
+		Command cmd = command_queue.front();
+		Serial.printf("Command Queue Size: %s %d %d\n", cmd.name.c_str(), cmd.time_ms, ms);
+		if (cmd.time_ms <= ms)
+		{
+			Serial.printf("Command %s\n", cmd.name.c_str());
+			if (cmd.name == "strum")
+			{
+				strum();
+			}
+			else if (cmd.name == "home")
+			{
+				home();
+			}
+			else if (cmd.name == "fret")
+			{
+				// fret(cmd.args[0], cmd.args[1]);
+			}
+			else
+			{
+				Serial.printf("Unknown command %s\n", cmd.name.c_str());
+			}
+			command_queue.pop();
+		}
+	}
+}
+
+// Send everything to home position
 void Ukulele::home()
 {
 	for (auto *s : pluckers)
@@ -44,17 +75,26 @@ void Ukulele::home()
 		f->home();
 }
 
+void Ukulele::test()
+{
+	for (auto *f : fretters)
+		f->minmax(1000);
+}
+
 // Strum all the strings
 void Ukulele::strum(int duration_ms)
 {
+	Serial.println("Strum");
 	for (auto *s : pluckers)
 	{
 		s->pluck();
-		delay(20);
+		delay(200);
 	}
-	delay(duration_ms);
-	home();
-	delay(200);
+	if (duration_ms > 0)
+	{
+		delay(duration_ms);
+		// home();
+	}
 }
 
 // Pluck a specific string

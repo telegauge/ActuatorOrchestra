@@ -16,6 +16,11 @@ void Plucker::begin()
 	_pwm->setPWMFreq(50);
 }
 
+void Plucker::loop(int ms)
+{
+	Serial.printf("Plucker loop %d\n", ms);
+}
+
 void Plucker::actuate(int degrees)
 {
 	int pulse = map(degrees, 0, 180, SERVO_MIN, SERVO_MAX);

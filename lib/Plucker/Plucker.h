@@ -9,6 +9,7 @@ class Plucker : public Actuator
 public:
 	Plucker(uint8_t pin, Adafruit_PWMServoDriver *pwm, const std::string &name);
 	void begin() override;
+	void loop(int ms) override;
 	void actuate(int degrees) override;
 	void home() override;
 	void pluck(int duration_ms = 0);
