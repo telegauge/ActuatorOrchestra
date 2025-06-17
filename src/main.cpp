@@ -53,8 +53,8 @@ void setup()
 
 void loop()
 {
-	int duration = 1000;
-	int pause = 2000;
+	int duration = 100;
+	int pause = 300;
 	if (oled.button(BUTTON_A))
 	{
 		paused = !paused;
@@ -65,56 +65,53 @@ void loop()
 	if (!paused)
 	{
 		// ukulele->strum(duration);
-		ukulele->fret(0, {false, false, false, false});
-		ukulele->strum(1000);
-		delay(pause);
-		ukulele->fret(0, {false, false, false, true});
-		ukulele->strum(1000);
-		delay(pause);
-		ukulele->fret(0, {false, false, true, false});
-		ukulele->strum(1000);
-		delay(pause);
-		ukulele->fret(0, {false, false, true, true});
-		ukulele->strum(1000);
-		delay(pause);
-		ukulele->fret(0, {false, true, false, false});
-		delay(pause);
-		ukulele->strum(1000);
-		ukulele->fret(0, {false, true, false, true});
-		delay(pause);
-		ukulele->strum(1000);
-		ukulele->fret(0, {false, true, true, false});
-		delay(pause);
-		ukulele->strum(1000);
-		ukulele->fret(0, {false, true, true, true});
-		delay(pause);
-		ukulele->strum(1000);
-		ukulele->fret(0, {true, false, false, false});
-		delay(pause);
-		ukulele->strum(1000);
-		ukulele->fret(0, {true, false, false, true});
-		delay(pause);
-		ukulele->strum(1000);
-		ukulele->fret(0, {true, false, true, false});
-		delay(pause);
-		ukulele->strum(1000);
-		ukulele->fret(0, {true, false, true, true});
-		delay(pause);
-		ukulele->strum(1000);
-		ukulele->fret(0, {true, true, false, false});
-		delay(pause);
-		ukulele->strum(1000);
-		ukulele->fret(0, {true, true, false, true});
-		delay(pause);
-		ukulele->strum(1000);
-		ukulele->fret(0, {true, true, true, false});
-		delay(pause);
-		ukulele->strum(1000);
-		ukulele->fret(0, {true, true, true, true});
-		delay(pause);
-		ukulele->strum(1000);
-		ukulele->home();
+		// ukulele->fret(0, {false, false, false, false});
+		// delay(pause);
+		// ukulele->strum(duration);
+		// ukulele->fret(0, {false, false, false, true});
+		// delay(pause);
+		// ukulele->strum(duration);
+		// ukulele->fret(0, {false, false, true, false});
+		// delay(pause);
+		// ukulele->strum(duration);
+		// ukulele->fret(0, {false, false, true, true});
+		// delay(pause);
+		// ukulele->strum(duration);
+		// ukulele->fret(0, {false, true, false, false});
+		// delay(pause);
+		// ukulele->strum(duration);
+		// ukulele->fret(0, {false, true, false, true});
+		// delay(pause);
+		// ukulele->strum(duration);
+		// ukulele->fret(0, {false, true, true, false});
+		// delay(pause);
+		// ukulele->strum(duration);
+		// ukulele->fret(0, {false, true, true, true});
+		// delay(pause);
+		// ukulele->strum(duration);
+		// ukulele->fret(0, {true, false, false, false});
+		// delay(pause);
+		// ukulele->strum(duration);
+		// ukulele->fret(0, {true, false, false, true});
+		// delay(pause);
+		// ukulele->strum(duration);
+		// ukulele->fret(0, {true, false, true, false});
+		// delay(pause);
+		// ukulele->strum(duration);
+		// ukulele->fret(0, {true, false, true, true});
+		// delay(pause);
+		// ukulele->strum(duration);
+		// ukulele->fret(0, {true, true, false, false});
+		// delay(pause);
+		// ukulele->strum(duration);
+		// ukulele->fret(0, {true, true, true, false});
+		// delay(pause);
+		// ukulele->strum(duration);
+		// ukulele->fret(0, {true, true, true, true});
+		// delay(pause);
+		// ukulele->strum(duration);
+		// ukulele->home();
 		Serial.println(" ");
 	}
-	delay(5000);
+	// delay(500);
 }

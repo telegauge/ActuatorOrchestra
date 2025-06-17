@@ -3,19 +3,9 @@
   "strings": 4,
   "pluckers": [
     {
-      "name": "A",
+      "name": "G",
       "type": "plucker",
-      "pin": 3,
-      "options": {
-        "swing_low": 80,
-        "swing_high": 110,
-        "swing_home": 90
-      }
-    },
-    {
-      "name": "E",
-      "type": "plucker",
-      "pin": 2,
+      "pin": 0,
       "options": {
         "swing_low": 80,
         "swing_high": 110,
@@ -33,9 +23,19 @@
       }
     },
     {
-      "name": "G",
+      "name": "E",
       "type": "plucker",
-      "pin": 0,
+      "pin": 2,
+      "options": {
+        "swing_low": 80,
+        "swing_high": 110,
+        "swing_home": 90
+      }
+    },
+    {
+      "name": "A",
+      "type": "plucker",
+      "pin": 3,
       "options": {
         "swing_low": 80,
         "swing_high": 110,

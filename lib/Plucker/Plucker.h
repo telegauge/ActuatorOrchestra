@@ -11,7 +11,7 @@ public:
 	void begin() override;
 	void actuate(int degrees) override;
 	void home() override;
-	void pluck(int duration_ms);
+	void pluck(int duration_ms = 0);
 	std::string name() override;
 
 private:

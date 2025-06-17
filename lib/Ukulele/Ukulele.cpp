@@ -49,9 +49,12 @@ void Ukulele::strum(int duration_ms)
 {
 	for (auto *s : pluckers)
 	{
-		s->pluck(duration_ms);
-		delay(50);
+		s->pluck();
+		delay(20);
 	}
+	delay(duration_ms);
+	home();
+	delay(200);
 }
 
 // Pluck a specific string
