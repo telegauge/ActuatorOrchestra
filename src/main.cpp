@@ -2,21 +2,26 @@
 #include <Adafruit_PWMServoDriver.h>
 #include <FS.h>
 #include <SPIFFS.h>
+#include <WebServer.h>
+#include <WiFi.h>
 
 #include "../lib/ConfigLoader/ConfigLoader.h"
 #include "../lib/ActuatorFactory/ActuatorFactory.h"
 #include "../lib/TimingEngine/TimingEngine.h"
 #include "../lib/OledDisplay/OledDisplay.h"
 #include "../lib/Ukulele/Ukulele.h"
+#include "../lib/api/api.h"
 
+WiFiClient wifi;
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 Ukulele *ukulele = nullptr;
 TimingEngine timingEngine;
 OledDisplay oled;
+WebServer server(80);
 
 const int STRUM_SWING_DEGREES = 30;
 const int STRUM_DURATION_MS = 150;
-bool paused = false;
+bool paused = true;
 
 bool pressed[] = {false, false, false, false};
 
@@ -35,7 +40,20 @@ void setup()
 	}
 	oled.log("SPIFFS OK");
 	pwm.begin();
-	oled.log("PWM OK");
+	oled.log("Servo OK");
+
+	WiFi.setHostname("AO-Ukulele");
+	WiFi.begin("Blaze", "shellycat");
+	while (WiFi.status() != WL_CONNECTED)
+	{
+		delay(500);
+		Serial.print(".");
+	}
+	Serial.print("IP: ");
+	String ip = WiFi.localIP().toString();
+	ip.replace("192.168.", "..."); // hide the IP address
+	Serial.println(ip);
+	oled.log(ip.c_str()); // Convert IPAddress to String before logging
 
 	InstrumentConfig config;
 	if (!ConfigLoader::loadConfig("/ukulele.json", config))
@@ -53,6 +71,11 @@ void setup()
 	ukulele->home();
 
 	oled.log("Ready");
+
+	init_api(server, ukulele, &oled, &paused);
+
+	oled.toolbar(paused ? "xx" : "yy");
+	server.begin();
 }
 
 bool Bools[][4] = {
@@ -76,11 +99,10 @@ bool Bools[][4] = {
 
 void loop()
 {
-	Serial.println("Loop");
-	// oled.log("Loop");
+	server.handleClient();
 	int ms = millis();
 	int duration = 1000;
-	int pause = 1000;
+	int pause = 500;
 	if (oled.button(BUTTON_A))
 	{
 		Serial.printf("Button A %d\n", pressed[BUTTON_A]);
@@ -88,7 +110,7 @@ void loop()
 		{
 			pressed[BUTTON_A] = true;
 			paused = !paused;
-			oled.log(paused ? "Paused" : "Playing");
+			oled.log(paused ? "paused" : "playing");
 			delay(300); // debounce
 			ukulele->home();
 		}
@@ -125,10 +147,11 @@ void loop()
 
 		for (int i = 0; i < 16; i++)
 		{
-			// char buf[32];
-			// snprintf(buf, sizeof(buf), "Pos %d", i);
-			// oled.log(buf);
-			// Serial.printf("Pos %d\n", i);
+			server.handleClient();
+			char buf[32];
+			snprintf(buf, sizeof(buf), "Pos %d", i);
+			oled.log(buf);
+			Serial.printf("Pos %d\n", i);
 			std::vector<bool> fret_positions(Bools[i], Bools[i] + 4);
 			ukulele->fret(0, fret_positions);
 			delay(pause);
@@ -136,9 +159,10 @@ void loop()
 			delay(pause);
 		}
 
-		delay(20);
+		// 	delay(20);
+		// }
+		// delay(500);
 	}
-	// delay(500);
 	yield();
 	delay(500);
 }

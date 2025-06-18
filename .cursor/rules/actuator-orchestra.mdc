@@ -8,7 +8,7 @@ alwaysApply: true
 ## Overview
 This project is a PlatformIO-based firmware for controlling servos and an OLED display, designed to automate the playing of a ukulele (or other instruments) using an ESP32 microcontroller. The codebase is modular, with custom libraries for display and servo control.
 
-When supplying results, minimuze the words and explaination.  Prioritize readable code.
+When supplying results, minimuze the words and explaination.  Prioritize readable code.   Uke means Ukulele, the target instrument.
 
 ## Main Directories
 - [`src/`](mdc:src): Contains the main application entry point ([main.cpp](mdc:src/main.cpp)).

@@ -48,6 +48,8 @@ public:
 	void log(int value);
 	void log(String value);
 
+	void toolbar(const char *text);
+
 	void printLogs();
 	bool button(int button);
 
@@ -55,6 +57,7 @@ private:
 	Adafruit_SH1107 display;
 	void initDisplay();
 	void initGrid();
+	void initToolbar();
 };
 
 #endif // OLED_DISPLAY_H

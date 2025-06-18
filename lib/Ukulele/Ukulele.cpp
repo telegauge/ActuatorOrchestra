@@ -2,6 +2,8 @@
 #include <string>
 #include <map>
 
+bool is_paused = false; // Global or static variable
+
 Ukulele::Ukulele(const InstrumentConfig &config, Adafruit_PWMServoDriver *pwm, OledDisplay *oled_display)
 		: oled(oled_display)
 {
@@ -39,6 +41,11 @@ void Ukulele::begin()
 
 void Ukulele::loop(int ms)
 {
+	if (is_paused)
+	{
+		// Optionally, do nothing or just yield
+		return;
+	}
 	if (command_queue.size() > 0)
 	{
 		Command cmd = command_queue.front();
@@ -88,7 +95,7 @@ void Ukulele::strum(int duration_ms)
 	for (auto *s : pluckers)
 	{
 		s->pluck();
-		delay(10);
+		delay(100);
 	}
 	if (duration_ms > 0)
 	{

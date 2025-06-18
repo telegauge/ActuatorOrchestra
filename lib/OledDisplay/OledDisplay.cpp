@@ -44,10 +44,15 @@ const unsigned char logo[] PROGMEM = {
 String logs[LOG_SIZE];
 
 #define GRID_X 0
-#define GRID_Y 0
+#define GRID_Y 13
 #define GRID_WIDTH 64
-#define GRID_HEIGHT 85
+#define GRID_HEIGHT 70
 #define GRID_MARGIN 1
+
+#define TOOLBAR_X 0
+#define TOOLBAR_Y 0
+#define TOOLBAR_WIDTH 64
+#define TOOLBAR_HEIGHT 12
 
 #define STRINGS 4
 #define FRETS 6
@@ -65,6 +70,7 @@ void OledDisplay::begin()
 	initDisplay();
 	delay(500);
 	initGrid();
+	initToolbar();
 }
 
 void OledDisplay::initDisplay()
@@ -73,6 +79,7 @@ void OledDisplay::initDisplay()
 	display.clearDisplay();
 	display.setRotation(2);
 	display.setTextSize(1);
+	display.setTextWrap(false);
 	display.setTextColor(SH110X_WHITE);
 
 	display.drawBitmap(0, (GRID_HEIGHT - 64) / 2, logo, 64, 64, SH110X_WHITE);
@@ -96,8 +103,6 @@ void OledDisplay::initGrid()
 	int W = STRINGS * dx;
 	int H = FRETS * dy;
 
-	Serial.printf("dx: %f, dy: %f\n", dx, dy);
-
 	for (float x = 0; x <= STRINGS; x++)
 	{
 		line(X + x * dx, Y, X + x * dx, Y + H);
@@ -107,6 +112,15 @@ void OledDisplay::initGrid()
 		}
 	}
 
+	display.display();
+}
+
+void OledDisplay::initToolbar()
+{
+	display.fillRect(TOOLBAR_X, TOOLBAR_Y, TOOLBAR_WIDTH, TOOLBAR_HEIGHT, SH110X_WHITE);
+
+	display.setTextColor(SH110X_BLACK);
+	print("Paused", TOOLBAR_X + 10, TOOLBAR_Y + 2);
 	display.display();
 }
 
@@ -157,7 +171,7 @@ void OledDisplay::print(const char *text, int x, int y)
 
 void OledDisplay::line(int x1, int y1, int x2, int y2)
 {
-	Serial.printf("Line %d %d %d %d\n", x1, y1, x2, y2);
+	// Serial.printf("Line %d %d %d %d\n", x1, y1, x2, y2);
 	display.drawLine(x1, y1, x2, y2, SH110X_WHITE);
 }
 
@@ -174,7 +188,16 @@ void OledDisplay::grid(int string, int fret, bool state)
 
 void OledDisplay::clear(int x, int y, int width, int height)
 {
-	Serial.printf("Clear %d %d %d %d\n", x, y, width, height);
+	// Serial.printf("Clear %d %d %d %d\n", x, y, width, height);
 	display.fillRect(x, y, width, height, SH110X_BLACK);
 	// display.display();
+}
+
+void OledDisplay::toolbar(const char *text)
+{
+	Serial.printf("Toolbar %s\n", text);
+	display.fillRect(TOOLBAR_X, TOOLBAR_Y, TOOLBAR_WIDTH, TOOLBAR_HEIGHT, SH110X_WHITE);
+	display.setTextColor(SH110X_BLACK);
+	print(text, TOOLBAR_X + 10, TOOLBAR_Y + 2);
+	display.display();
 }
