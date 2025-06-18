@@ -96,8 +96,12 @@ bool Bools[][4] = {
 		{true, true, true, false},		// 14
 		{true, true, true, true}			// 15
 };
-
 void loop()
+{
+	server.handleClient();
+}
+
+void Xloop()
 {
 	server.handleClient();
 	int ms = millis();

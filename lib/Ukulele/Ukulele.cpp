@@ -95,7 +95,7 @@ void Ukulele::strum(int duration_ms)
 	for (auto *s : pluckers)
 	{
 		s->pluck();
-		delay(100);
+		delay(50);
 	}
 	if (duration_ms > 0)
 	{
@@ -109,6 +109,13 @@ void Ukulele::pluck(int idx, int duration_ms)
 {
 	if (idx >= 0 && idx < (int)pluckers.size())
 		pluckers[idx]->pluck(duration_ms);
+}
+
+void Ukulele::fret(int fret_number, String &pressed)
+{
+	std::vector<bool> pressed_vector;
+	for (size_t i = 0; i < pressed.length(); ++i) pressed_vector.push_back(pressed[i] == '1');
+	fret(fret_number, pressed_vector);
 }
 
 // Fret a specific fret
@@ -127,17 +134,18 @@ void Ukulele::fret(int fret_number, const std::vector<bool> &pressed)
 	key_right += pressed[2] ? '1' : '0';
 	key_right += pressed[3] ? '1' : '0';
 	const std::map<std::string, int> fret_map = {
-			{"00", 180},
-			{"01", 120},
-			{"10", 0},
-			{"11", 60}};
+			{"11", 0},
+			{"01", 60},
+			{"00", 120},
+			{"10", 180},
+			};
 
 	fretters[fret_number]->fret(fret_map.at(key_left), fret_map.at(key_right));
 
-	oled->grid(4, fret_number, pressed[0]);
-	oled->grid(3, fret_number, pressed[1]);
+	oled->grid(0, fret_number, pressed[0]);
+	oled->grid(1, fret_number, pressed[1]);
 	oled->grid(2, fret_number, pressed[2]);
-	oled->grid(1, fret_number, pressed[3]);
+	oled->grid(3, fret_number, pressed[3]);
 }
 
 int Ukulele::numStrings() const

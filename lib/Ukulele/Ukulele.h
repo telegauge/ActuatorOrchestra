@@ -22,6 +22,8 @@ public:
 	void strum(int duration_ms = 0);
 	void pluck(int idx, int duration_ms = 0);
 	void fret(int fret_number, const std::vector<bool> &pressed);
+	void fret(int fret_number, String &pressed);
+
 	int numStrings() const;
 	std::string stringName(int idx) const;
 	int numFretters() const;
