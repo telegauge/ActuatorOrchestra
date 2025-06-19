@@ -3,6 +3,7 @@
 #include <FS.h>
 #include <SPIFFS.h>
 #include <WebServer.h>
+#include <WebSocketsServer.h>
 #include <WiFi.h>
 
 #include "../lib/ConfigLoader/ConfigLoader.h"
@@ -18,6 +19,7 @@ Ukulele *ukulele = nullptr;
 TimingEngine timingEngine;
 OledDisplay oled;
 WebServer server(80);
+WebSocketsServer webSocket(81);  // WebSocket server on port 81
 
 const int STRUM_SWING_DEGREES = 30;
 const int STRUM_DURATION_MS = 150;
@@ -74,7 +76,7 @@ void setup()
 
 	oled.log("Ready");
 
-	init_api(server, ukulele, &oled, &paused);
+	init_api(server, webSocket, ukulele, &oled, &paused);
 
 	oled.toolbar(paused ? "xx" : "yy");
 	server.begin();
@@ -101,6 +103,7 @@ bool Bools[][4] = {
 void loop()
 {
 	server.handleClient();
+	webSocket.loop();
 }
 
 void Xloop()
@@ -179,6 +182,7 @@ float readBatteryPercent() {
 	// Map 3.0V (0%) to 4.2V (100%)
 	float percent = (voltage - 3.0) / (4.2 - 3.0) * 100.0;
 	Serial.printf("Battery: %d %f %f\n", raw, voltage, percent);
+	percent *= 100/76; // calibration
 	if (percent < 0) percent = 0;
 	if (percent > 100) percent = 100;
 	return percent;

@@ -90,12 +90,12 @@ void Ukulele::test()
 }
 
 // Strum all the strings
-void Ukulele::strum(int duration_ms)
+void Ukulele::strum(int duration_ms, int delay_ms )
 {
 	for (auto *s : pluckers)
 	{
 		s->pluck();
-		delay(50);
+		delay(delay_ms);
 	}
 	if (duration_ms > 0)
 	{
@@ -111,7 +111,7 @@ void Ukulele::pluck(int idx, int duration_ms)
 		pluckers[idx]->pluck(duration_ms);
 }
 
-void Ukulele::fret(int fret_number, String &pressed)
+void Ukulele::fret(int fret_number, const String &pressed)
 {
 	std::vector<bool> pressed_vector;
 	for (size_t i = 0; i < pressed.length(); ++i) pressed_vector.push_back(pressed[i] == '1');

@@ -19,10 +19,10 @@ public:
 	void loop(int ms) override;
 	void home() override;
 	void test();
-	void strum(int duration_ms = 0);
+	void strum(int duration_ms = 0, int delay_ms = 50);
 	void pluck(int idx, int duration_ms = 0);
 	void fret(int fret_number, const std::vector<bool> &pressed);
-	void fret(int fret_number, String &pressed);
+	void fret(int fret_number, const String &pressed);
 
 	int numStrings() const;
 	std::string stringName(int idx) const;
