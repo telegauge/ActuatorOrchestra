@@ -115,7 +115,8 @@ void Ukulele::fret(int fret_number, String &pressed)
 {
 	std::vector<bool> pressed_vector;
 	for (size_t i = 0; i < pressed.length(); ++i) pressed_vector.push_back(pressed[i] == '1');
-	fret(fret_number, pressed_vector);
+	if (fret_number >= 0 && fret_number < (int)fretters.size())
+		fret(fret_number, pressed_vector);
 }
 
 // Fret a specific fret

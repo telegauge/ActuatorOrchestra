@@ -2,6 +2,8 @@
 #include "../Ukulele/Ukulele.h"
 #include "../OledDisplay/OledDisplay.h"
 
+extern float readBatteryPercent();
+
 #define API_PREFIX "@ "
 
 void sendCORS(WebServer &server, int code, const char *type, const String &body)
@@ -30,6 +32,17 @@ void init_api(WebServer &server, Ukulele *ukulele, OledDisplay *oled, bool *is_p
         oled->log(( fret + " " + pressed).c_str());
         ukulele->fret(fret, pressed);
         sendCORS(server, 200, "text/plain", "Fretted"); });
+	server.on("/api/chord", HTTP_POST, [ukulele, oled, &server]()
+						{
+							String chord = server.hasArg("chord") ? server.arg("chord") : "";
+        String pressed = server.hasArg("pressed") ? server.arg("pressed") : "";
+				// pressed gets split into chunks of 4
+				for (int i = 0; i < pressed.length(); i += 4) {
+					String chunk = pressed.substring(i, i + 4);
+					ukulele->fret(i / 4, chunk);
+				}
+				oled->log(( chord ).c_str());
+        sendCORS(server, 200, "text/plain", "Fretted "+chord); });
 	server.on("/api/pause", HTTP_POST, [oled, is_paused, &server]()
 						{
         oled->log(API_PREFIX "pause");
@@ -50,4 +63,11 @@ void init_api(WebServer &server, Ukulele *ukulele, OledDisplay *oled, bool *is_p
         json += "\"strings\":" + String(ukulele->numStrings());
         json += "}";
         sendCORS(server, 200, "application/json", json); });
+	server.on("/api/battery", HTTP_GET, [oled, &server]() {
+        float percent = readBatteryPercent();
+        char buf[8];
+        snprintf(buf, sizeof(buf), "%d", (int)percent);
+        oled->log((String(API_PREFIX "BAT ") + buf + "%").c_str());
+        sendCORS(server, 200, "text/plain", buf);
+    });
 }

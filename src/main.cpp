@@ -25,6 +25,8 @@ bool paused = true;
 
 bool pressed[] = {false, false, false, false};
 
+#define BATTERY_PIN 35
+
 void setup()
 {
 	Serial.begin(115200);
@@ -169,4 +171,15 @@ void Xloop()
 	}
 	yield();
 	delay(500);
+}
+
+float readBatteryPercent() {
+	int raw = analogRead(BATTERY_PIN);
+	float voltage = raw * (3.3 / 4095.0) * 2; // 2x because of voltage divider
+	// Map 3.0V (0%) to 4.2V (100%)
+	float percent = (voltage - 3.0) / (4.2 - 3.0) * 100.0;
+	Serial.printf("Battery: %d %f %f\n", raw, voltage, percent);
+	if (percent < 0) percent = 0;
+	if (percent > 100) percent = 100;
+	return percent;
 }
