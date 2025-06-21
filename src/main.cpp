@@ -182,7 +182,7 @@ float readBatteryPercent() {
 	// Map 3.0V (0%) to 4.2V (100%)
 	float percent = (voltage - 3.0) / (4.2 - 3.0) * 100.0;
 	Serial.printf("Battery: %d %f %f\n", raw, voltage, percent);
-	percent *= 100/76; // calibration
+	percent *= 100.0/76.0; // calibration
 	if (percent < 0) percent = 0;
 	if (percent > 100) percent = 100;
 	return percent;
