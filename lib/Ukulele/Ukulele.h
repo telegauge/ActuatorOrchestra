@@ -13,7 +13,7 @@
 class Ukulele : public Instrument
 {
 public:
-	Ukulele(const InstrumentConfig &config, Adafruit_PWMServoDriver *pwm, OledDisplay *oled);
+	Ukulele(const InstrumentConfig &config, std::vector<Adafruit_PWMServoDriver *> &pwm, OledDisplay *oled);
 	~Ukulele();
 	void begin() override;
 	void loop(int ms) override;
@@ -21,6 +21,7 @@ public:
 	void test();
 	void strum(int duration_ms = 0, int delay_ms = 50);
 	void pluck(int idx, int duration_ms = 0);
+	void chord(const std::string &pressed);
 	void fret(int fret_number, const std::vector<bool> &pressed);
 	void fret(int fret_number, const String &pressed);
 

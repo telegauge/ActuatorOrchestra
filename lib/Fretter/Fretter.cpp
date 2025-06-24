@@ -8,8 +8,8 @@
 
 #define HOME_POSITION 120 // in degrees
 
-Fretter::Fretter(int pin1, int pin2, Adafruit_PWMServoDriver *pwm, const std::string &name)
-		: _pin1(pin1), _pin2(pin2), _pwm(pwm), _name(name) {}
+Fretter::Fretter(int pin_left, int pin_right, Adafruit_PWMServoDriver *pwm, const std::string &name)
+		: _pin_left(pin_left), _pin_right(pin_right), _pwm(pwm), _name(name) {}
 
 void Fretter::begin()
 {
@@ -27,8 +27,8 @@ void Fretter::actuate(int left_degrees, int right_degrees)
 {
 	int left_pulse = map(left_degrees, 0, 180, SERVO_MIN, SERVO_MAX);
 	int right_pulse = map(right_degrees, 0, 180, SERVO_MIN, SERVO_MAX);
-	_pwm->setPWM(_pin1, 0, left_pulse);
-	_pwm->setPWM(_pin2, 0, right_pulse);
+	_pwm->setPWM(_pin_left, 0, left_pulse);
+	_pwm->setPWM(_pin_right, 0, right_pulse);
 }
 void Fretter::actuate(int value)
 {
@@ -54,7 +54,7 @@ void Fretter::minmax(int duration_ms)
 
 void Fretter::fret(int left_degrees, int right_degrees)
 {
-	// Serial.printf("Fretting: %d º%d %d º%d\n", _pin1, left_degrees, _pin2, right_degrees);
+	// Serial.printf("Fretting: %d º%d %d º%d\n", _pin_left, left_degrees, _pin_right, right_degrees);
 	actuate(left_degrees, right_degrees);
 }
 

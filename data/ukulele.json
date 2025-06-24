@@ -6,6 +6,7 @@
       "name": "G",
       "type": "plucker",
       "pin": 0,
+      "bus": 0,
       "options": {
         "swing_low": 80,
         "swing_high": 110,
@@ -16,6 +17,7 @@
       "name": "C",
       "type": "plucker",
       "pin": 1,
+      "bus": 0,
       "options": {
         "swing_low": 80,
         "swing_high": 110,
@@ -26,6 +28,7 @@
       "name": "E",
       "type": "plucker",
       "pin": 2,
+      "bus": 0,
       "options": {
         "swing_low": 80,
         "swing_high": 110,
@@ -36,6 +39,7 @@
       "name": "A",
       "type": "plucker",
       "pin": 3,
+      "bus": 0,
       "options": {
         "swing_low": 80,
         "swing_high": 110,
@@ -47,8 +51,9 @@
     {
       "name": "Fret 1",
       "type": "fretter",
-      "pin_left": 4,
-      "pin_right": 5,
+      "pin_left": 0,
+      "pin_right": 1,
+      "bus": 1,
       "options": {
         "positions": [0, 60, 120, 180]
       }
@@ -56,8 +61,29 @@
     {
       "name": "Fret 2",
       "type": "fretter",
+      "pin_left": 2,
+      "pin_right": 3,
+      "bus": 1,
+      "options": {
+        "positions": [0, 60, 120, 180]
+      }
+    },
+    {
+      "name": "Fret 3",
+      "type": "fretter",
+      "pin_left": 4,
+      "pin_right": 5,
+      "bus": 1,
+      "options": {
+        "positions": [0, 60, 120, 180]
+      }
+    },
+    {
+      "name": "Fret 4",
+      "type": "fretter",
       "pin_left": 6,
       "pin_right": 7,
+      "bus": 1,
       "options": {
         "positions": [0, 60, 120, 180]
       }

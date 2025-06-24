@@ -8,7 +8,7 @@
 class Fretter : public Actuator
 {
 public:
-	Fretter(int pin1, int pin2, Adafruit_PWMServoDriver *pwm, const std::string &name);
+	Fretter(int pin_left, int pin_right, Adafruit_PWMServoDriver *pwm, const std::string &name);
 	void begin() override;
 	void actuate(int left_value, int right_value);
 	void home() override;
@@ -19,7 +19,7 @@ public:
 	std::string name() override;
 
 private:
-	int _pin1, _pin2;
+	int _pin_left, _pin_right;
 	Adafruit_PWMServoDriver *_pwm;
 	std::string _name;
 	int _homePosition = 90;

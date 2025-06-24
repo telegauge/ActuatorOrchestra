@@ -32,6 +32,7 @@ bool ConfigLoader::loadConfig(const char *filename, InstrumentConfig &config)
 		ActuatorConfig aconf;
 		aconf.type = act["type"].as<std::string>();
 		aconf.pin = act["pin"];
+		aconf.bus = act["bus"] | 0;
 		aconf.name = act["name"].as<std::string>();
 		aconf.options = act["options"];
 		config.pluckers.push_back(aconf);
@@ -40,8 +41,9 @@ bool ConfigLoader::loadConfig(const char *filename, InstrumentConfig &config)
 	{
 		FretterConfig fconf;
 		fconf.type = fret["type"].as<std::string>();
-		fconf.pin1 = fret["pin_left"];
-		fconf.pin2 = fret["pin_right"];
+		fconf.pin_left = fret["pin_left"];
+		fconf.pin_right = fret["pin_right"];
+		fconf.bus = fret["bus"] | 0;
 		fconf.name = fret["name"].as<std::string>();
 		fconf.options = fret["options"];
 		config.fretters.push_back(fconf);

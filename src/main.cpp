@@ -14,12 +14,15 @@
 #include "../lib/api/api.h"
 
 WiFiClient wifi;
-Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+Adafruit_PWMServoDriver pwm1 = Adafruit_PWMServoDriver(0x40);
+Adafruit_PWMServoDriver pwm2 = Adafruit_PWMServoDriver(0x42);
+std::vector<Adafruit_PWMServoDriver *> pwms;
+
 Ukulele *ukulele = nullptr;
 TimingEngine timingEngine;
 OledDisplay oled;
 WebServer server(80);
-WebSocketsServer webSocket(81);  // WebSocket server on port 81
+WebSocketsServer webSocket(81); // WebSocket server on port 81
 
 const int STRUM_SWING_DEGREES = 30;
 const int STRUM_DURATION_MS = 150;
@@ -43,7 +46,12 @@ void setup()
 		return;
 	}
 	oled.log("SPIFFS OK");
-	pwm.begin();
+	pwm1.begin();
+	pwm2.begin();
+
+	// Add two PWM servo drivers to the vector of drivers
+	pwms.push_back(&pwm1); // Add first PWM driver (0x40)
+	pwms.push_back(&pwm2); // Add second PWM driver (0x42)
 	oled.log("Servo OK");
 
 	WiFi.setHostname("AO-Ukulele");
@@ -62,15 +70,15 @@ void setup()
 	InstrumentConfig config;
 	if (!ConfigLoader::loadConfig("/ukulele.json", config))
 	{
-		// TO upload: pio run -t upload
-		oled.log("Config FAIL?");
+		// TO upload: pio run -t uploadfs
+		oled.log("Config FAIL");
 		Serial.println("Failed to load config");
 		return;
 	}
 	oled.log("Config OK");
 	oled.log(config.instrument.c_str());
 
-	ukulele = new Ukulele(config, &pwm, &oled);
+	ukulele = new Ukulele(config, pwms, &oled);
 	ukulele->begin();
 	ukulele->home();
 
@@ -176,14 +184,17 @@ void Xloop()
 	delay(500);
 }
 
-float readBatteryPercent() {
+float readBatteryPercent()
+{
 	int raw = analogRead(BATTERY_PIN);
 	float voltage = raw * (3.3 / 4095.0) * 2; // 2x because of voltage divider
 	// Map 3.0V (0%) to 4.2V (100%)
 	float percent = (voltage - 3.0) / (4.2 - 3.0) * 100.0;
 	Serial.printf("Battery: %d %f %f\n", raw, voltage, percent);
-	percent *= 100.0/76.0; // calibration
-	if (percent < 0) percent = 0;
-	if (percent > 100) percent = 100;
+	percent *= 100.0 / 76.0; // calibration
+	if (percent < 0)
+		percent = 0;
+	if (percent > 100)
+		percent = 100;
 	return percent;
 }

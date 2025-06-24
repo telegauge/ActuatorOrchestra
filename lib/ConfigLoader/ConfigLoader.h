@@ -9,6 +9,7 @@ struct ActuatorConfig
 {
 	std::string type;
 	int pin;
+	int bus = 0;
 	std::string name;
 	JsonObject options;
 };
@@ -16,8 +17,9 @@ struct ActuatorConfig
 struct FretterConfig
 {
 	std::string type;
-	int pin1;
-	int pin2;
+	int pin_left;
+	int pin_right;
+	int bus = 0;
 	std::string name;
 	JsonObject options;
 };

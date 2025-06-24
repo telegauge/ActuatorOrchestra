@@ -2,15 +2,16 @@
 #include "../Ukulele/Ukulele.h"
 #include "../OledDisplay/OledDisplay.h"
 #include <ArduinoJson.h>
+#include <LittleFS.h>
 
 extern float readBatteryPercent();
 
 #define API_PREFIX "@ "
 
 // Global pointers for WebSocket callbacks
-static Ukulele* g_ukulele = nullptr;
-static OledDisplay* g_oled = nullptr;
-static bool* g_is_paused = nullptr;
+static Ukulele *g_ukulele = nullptr;
+static OledDisplay *g_oled = nullptr;
+static bool *g_is_paused = nullptr;
 
 void sendCORS(WebServer &server, int code, const char *type, const String &body)
 {
@@ -19,42 +20,46 @@ void sendCORS(WebServer &server, int code, const char *type, const String &body)
 }
 
 // Shared command handlers
-void handle_strum(int delay_ms) {
+void handle_strum(int delay_ms)
+{
 	g_oled->log(API_PREFIX "strum");
 	g_ukulele->strum(0, delay_ms);
 }
 
-void handle_pluck(int idx) {
+void handle_pluck(int idx)
+{
 	g_oled->log((String(API_PREFIX "pluck ") + idx).c_str());
-	g_ukulele->pluck(idx);
+	g_ukulele->pluck(idx - 1);
 }
 
-void handle_fret(int fret, const String &pressed) {
+void handle_fret(int fret, const String &pressed)
+{
 	g_oled->log((String(API_PREFIX "fret ") + fret).c_str());
-	g_ukulele->fret(fret, pressed);
+	g_ukulele->fret(fret - 1, pressed);
 }
 
-void handle_chord(const String &chord, const String &pressed) {
-	for (int i = 0; i < pressed.length(); i += 4) {
-		String chunk = pressed.substring(i, i + 4);
-		g_ukulele->fret(i / 4, chunk);
-	}
+void handle_chord(const String &chord, const String &pressed)
+{
+	g_ukulele->chord(pressed.c_str());
 	g_oled->log((String(API_PREFIX "chord ") + chord).c_str());
 }
 
-void handle_pause() {
+void handle_pause()
+{
 	g_oled->log(API_PREFIX "pause");
 	*g_is_paused = true;
 	g_oled->toolbar("paused");
 }
 
-void handle_play() {
+void handle_play()
+{
 	g_oled->log(API_PREFIX "play");
 	*g_is_paused = false;
 	g_oled->toolbar("playing");
 }
 
-String handle_info() {
+String handle_info()
+{
 	g_oled->log(API_PREFIX "info");
 	String json = "{";
 	json += "\"instrument\":\"ukulele\",";
@@ -64,7 +69,8 @@ String handle_info() {
 	return json;
 }
 
-String handle_battery() {
+String handle_battery()
+{
 	float percent = readBatteryPercent();
 	char buf[8];
 	snprintf(buf, sizeof(buf), "%d", (int)percent);
@@ -75,55 +81,82 @@ String handle_battery() {
 	return json;
 }
 
-void handle_websocket_event(WebSocketsServer &ws, uint8_t num, WStype_t type, uint8_t *payload, size_t length) {
-	switch(type) {
-		case WStype_DISCONNECTED:
-			g_oled->log(API_PREFIX "WS Disconnected");
-			break;
-		case WStype_CONNECTED:
-			g_oled->log(API_PREFIX "WS Connected");
-			break;
-		case WStype_TEXT: {
-			StaticJsonDocument<200> doc;
-			DeserializationError error = deserializeJson(doc, payload);
-			if (error) return;
+void handle_root(WebServer &server)
+{
+	g_oled->log(API_PREFIX "root");
+	File file = LittleFS.open("/index.html", "r");
+	if (!file)
+	{
+		g_oled->log(API_PREFIX "no index");
+		sendCORS(server, 404, "text/plain", "Not found");
+		return;
+	}
+	server.streamFile(file, "text/html");
+	file.close();
+}
 
-			const char* cmd = doc["cmd"];
-			if (!cmd) return;
+void handle_websocket_event(WebSocketsServer &ws, uint8_t num, WStype_t type, uint8_t *payload, size_t length)
+{
+	switch (type)
+	{
+	case WStype_DISCONNECTED:
+		g_oled->log(API_PREFIX "WS Disconnected");
+		break;
+	case WStype_CONNECTED:
+		g_oled->log(API_PREFIX "WS Connected");
+		break;
+	case WStype_TEXT:
+	{
+		StaticJsonDocument<200> doc;
+		DeserializationError error = deserializeJson(doc, payload);
+		if (error)
+			return;
 
-			if (strcmp(cmd, "strum") == 0) {
-				handle_strum(doc["delay"] | 50);
-			}
-			else if (strcmp(cmd, "pluck") == 0) {
-				handle_pluck(doc["string"] | 0);
-			}
-			else if (strcmp(cmd, "fret") == 0) {
-				String pressed = doc["pressed"] | "";
-				handle_fret(doc["fret"] | 0, pressed);
-			}
-			else if (strcmp(cmd, "chord") == 0) {
-				String chord = doc["chord"] | "";
-				String pressed = doc["pressed"] | "";
-				handle_chord(chord, pressed);
-			}
-			else if (strcmp(cmd, "pause") == 0) {
-				handle_pause();
-			}
-			else if (strcmp(cmd, "play") == 0) {
-				handle_play();
-			}
-			else if (strcmp(cmd, "info") == 0) {
-				String response = handle_info();
-				ws.sendTXT(num, response);
-			}
-			else if (strcmp(cmd, "battery") == 0) {
-				String response = handle_battery();
-				ws.sendTXT(num, response);
-			}
-			break;
+		const char *cmd = doc["cmd"];
+		if (!cmd)
+			return;
+
+		if (strcmp(cmd, "strum") == 0)
+		{
+			handle_strum(doc["delay"] | 50);
 		}
-		default:
-			break;
+		else if (strcmp(cmd, "pluck") == 0)
+		{
+			handle_pluck(doc["string"] | 0);
+		}
+		else if (strcmp(cmd, "fret") == 0)
+		{
+			String pressed = doc["pressed"] | "";
+			handle_fret(doc["fret"] | 0, pressed);
+		}
+		else if (strcmp(cmd, "chord") == 0)
+		{
+			String chord = doc["chord"] | "";
+			String pressed = doc["pressed"] | "";
+			handle_chord(chord, pressed);
+		}
+		else if (strcmp(cmd, "pause") == 0)
+		{
+			handle_pause();
+		}
+		else if (strcmp(cmd, "play") == 0)
+		{
+			handle_play();
+		}
+		else if (strcmp(cmd, "info") == 0)
+		{
+			String response = handle_info();
+			ws.sendTXT(num, response);
+		}
+		else if (strcmp(cmd, "battery") == 0)
+		{
+			String response = handle_battery();
+			ws.sendTXT(num, response);
+		}
+		break;
+	}
+	default:
+		break;
 	}
 }
 
@@ -135,55 +168,58 @@ void init_api(WebServer &server, WebSocketsServer &ws, Ukulele *ukulele, OledDis
 	g_is_paused = is_paused;
 
 	// Setup WebSocket server
-	ws.onEvent([&ws](uint8_t num, WStype_t type, uint8_t *payload, size_t length) {
-		handle_websocket_event(ws, num, type, payload, length);
-	});
+	ws.onEvent([&ws](uint8_t num, WStype_t type, uint8_t *payload, size_t length)
+						 { handle_websocket_event(ws, num, type, payload, length); });
 	ws.begin();
 
+	// Root page
+	server.on("/", HTTP_GET, [&server]()
+						{ handle_root(server); });
+
 	// REST API endpoints
-	server.on("/api/strum", HTTP_POST, [&server]() {
+	server.on("/api/strum", HTTP_POST, [&server]()
+						{
 		int delay = server.hasArg("delay") ? server.arg("delay").toInt() : 50;
 		handle_strum(delay);
-		sendCORS(server, 200, "text/plain", "Strummed");
-	});
+		sendCORS(server, 200, "text/plain", "Strummed"); });
 
-	server.on("/api/pluck", HTTP_POST, [&server]() {
+	server.on("/api/pluck", HTTP_POST, [&server]()
+						{
 		int idx = server.hasArg("string") ? server.arg("string").toInt() : 0;
 		handle_pluck(idx);
-		sendCORS(server, 200, "text/plain", "Plucked");
-	});
+		sendCORS(server, 200, "text/plain", "Plucked"); });
 
-	server.on("/api/fret", HTTP_POST, [&server]() {
+	server.on("/api/fret", HTTP_POST, [&server]()
+						{
 		int fret = server.hasArg("fret") ? server.arg("fret").toInt() : 0;
 		String pressed = server.hasArg("pressed") ? server.arg("pressed") : "";
 		handle_fret(fret, pressed);
-		sendCORS(server, 200, "text/plain", "Fretted");
-	});
+		sendCORS(server, 200, "text/plain", "Fretted"); });
 
-	server.on("/api/chord", HTTP_POST, [&server]() {
+	server.on("/api/chord", HTTP_POST, [&server]()
+						{
 		String chord = server.hasArg("chord") ? server.arg("chord") : "";
 		String pressed = server.hasArg("pressed") ? server.arg("pressed") : "";
 		handle_chord(chord, pressed);
-		sendCORS(server, 200, "text/plain", "Fretted " + chord);
-	});
+		sendCORS(server, 200, "text/plain", "Fretted " + chord); });
 
-	server.on("/api/pause", HTTP_POST, [&server]() {
+	server.on("/api/pause", HTTP_POST, [&server]()
+						{
 		handle_pause();
-		sendCORS(server, 200, "text/plain", "Paused");
-	});
+		sendCORS(server, 200, "text/plain", "Paused"); });
 
-	server.on("/api/play", HTTP_POST, [&server]() {
+	server.on("/api/play", HTTP_POST, [&server]()
+						{
 		handle_play();
-		sendCORS(server, 200, "text/plain", "Playing");
-	});
+		sendCORS(server, 200, "text/plain", "Playing"); });
 
-	server.on("/api/info", HTTP_GET, [&server]() {
+	server.on("/api/info", HTTP_GET, [&server]()
+						{
 		String json = handle_info();
-		sendCORS(server, 200, "application/json", json);
-	});
+		sendCORS(server, 200, "application/json", json); });
 
-	server.on("/api/battery", HTTP_GET, [&server]() {
+	server.on("/api/battery", HTTP_GET, [&server]()
+						{
 		String response = handle_battery();
-		sendCORS(server, 200, "text/plain", response);
-	});
+		sendCORS(server, 200, "text/plain", response); });
 }
