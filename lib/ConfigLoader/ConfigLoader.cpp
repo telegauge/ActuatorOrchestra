@@ -50,3 +50,13 @@ bool ConfigLoader::loadConfig(const char *filename, InstrumentConfig &config)
 	}
 	return true;
 }
+
+bool ConfigLoader::saveConfig(const char *filename, const String &json)
+{
+	File file = SPIFFS.open(filename, "w");
+	if (!file)
+		return false;
+	file.print(json);
+	file.close();
+	return true;
+}

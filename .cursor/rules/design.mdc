@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+This project controls an instrument.  The instrument is one of several types, but to start with, it's guitar-like.  Specifically a Ukulele.  This project provides an API bot REST and WS, and accepts commands.  For example, the API command "pluck" will activate a servo.   Not every instance of this project will have "pluck".  In fact, configuration of what the instrument can do, as well as a list of actions is supplied through the API through a configuration event.

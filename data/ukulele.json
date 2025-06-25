@@ -51,9 +51,9 @@
     {
       "name": "Fret 1",
       "type": "fretter",
-      "pin_left": 0,
-      "pin_right": 1,
-      "bus": 1,
+      "pin_left": 4,
+      "pin_right": 5,
+      "bus": 0,
       "options": {
         "positions": [0, 60, 120, 180]
       }

@@ -16,7 +16,7 @@
 
 WiFiClient wifi;
 Adafruit_PWMServoDriver pwm1 = Adafruit_PWMServoDriver(0x40);
-Adafruit_PWMServoDriver pwm2 = Adafruit_PWMServoDriver(0x46);
+Adafruit_PWMServoDriver pwm2 = Adafruit_PWMServoDriver(0x41);
 std::vector<Adafruit_PWMServoDriver *> pwms;
 
 String scanI2C();
@@ -71,6 +71,14 @@ void setup()
 
 	String devices = scanI2C();
 	// oled.log(devices.c_str());
+
+	// Config config2;
+	// if (!ConfigLoader::loadConfig("/config.json", config2))
+	// {
+	// 	oled.log("Config FAIL");
+	// 	Serial.println("Failed to load config: config.json");
+	// 	return;
+	// }
 
 	InstrumentConfig config;
 	if (!ConfigLoader::loadConfig("/ukulele.json", config))
@@ -136,7 +144,7 @@ String scanI2C()
 		{
 			char hex_string[10];
 			snprintf(hex_string, sizeof(hex_string), "0x%02X", address);
-			Serial.println(hex_string);
+			// Serial.println(hex_string);
 			oled.log(hex_string);
 			nDevices++;
 			devices += String(hex_string) + ",";

@@ -24,6 +24,15 @@ struct FretterConfig
 	JsonObject options;
 };
 
+struct Config
+{
+	int id;
+	std::string type;
+	std::string ip;
+	std::string name;
+	JsonObject config;
+};
+
 struct InstrumentConfig
 {
 	std::string instrument;
@@ -36,6 +45,7 @@ class ConfigLoader
 {
 public:
 	static bool loadConfig(const char *filename, InstrumentConfig &config);
+	static bool saveConfig(const char *filename, const String &json);
 };
 
 #endif // CONFIGLOADER_H

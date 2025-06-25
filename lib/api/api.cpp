@@ -245,4 +245,41 @@ void init_api(WebServer &server, WebSocketsServer &ws, Ukulele *ukulele, OledDis
 						{
 		String response = handle_battery();
 		sendCORS(server, 200, "text/plain", response); });
+
+	server.on("/api/files", HTTP_GET, [&server]() {
+		String out = "[";
+		File root = LittleFS.open("/", "r");
+		File file = root.openNextFile();
+		bool first = true;
+		while (file) {
+			Serial.println(file.name());
+			if (!first) out += ",";
+			first = false;
+			out += "{\"name\":\"";
+			out += file.name();
+			out += "\",\"size\":";
+			out += file.size();
+			out += "}";
+			file = root.openNextFile();
+		}
+		out += "]";
+		sendCORS(server, 200, "application/json", out);
+	});
+
+	server.on("/api/config", HTTP_POST, [&server]()
+	{
+		if (!server.hasArg("config")) {
+			g_oled->log(API_PREFIX "config: no body");
+			sendCORS(server, 400, "text/plain", "No config body");
+			return;
+		}
+		String json = server.arg("config");
+		if (ConfigLoader::saveConfig("/config.json", json)) {
+			g_oled->log(API_PREFIX "config: saved");
+			sendCORS(server, 200, "text/plain", "Config saved");
+		} else {
+			g_oled->log(API_PREFIX "config: save fail");
+			sendCORS(server, 400, "text/plain", "Config save failed");
+		}
+	});
 }

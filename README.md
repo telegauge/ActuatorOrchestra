@@ -68,7 +68,7 @@ Actuator Orchestra is a modular system for robotic musical instruments. Each ins
 
 ## Usage
 
-- Configure your instrument in `config/` (see example `ukulele.json`)
+- Configure your instrument in `config/` (see example `config.json`)
 - Upload firmware to your board
 - (Future) Play a song file to coordinate multiple instruments
 

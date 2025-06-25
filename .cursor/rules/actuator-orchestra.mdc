@@ -44,4 +44,6 @@ When supplying results, minimuze the words and explaination.  Prioritize readabl
 - Place new libraries in their own subdirectory under [`lib/`](mdc:lib), following the pattern of `oled/` and `servo/`.
 - Each library should have its own header and source files.
 
+Always keep the README.md document up to date.
+
 
