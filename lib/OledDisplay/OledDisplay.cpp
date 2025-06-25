@@ -41,7 +41,8 @@ const unsigned char logo[] PROGMEM = {
 #define LOG_WIDTH 64
 #define LOG_HEIGHT 42
 #define LOG_SIZE 4
-String logs[LOG_SIZE];
+#define LOG_SIZE_INIT 13
+String logs[LOG_SIZE_INIT];
 
 #define GRID_X 0
 #define GRID_Y 13
@@ -57,6 +58,8 @@ String logs[LOG_SIZE];
 #define STRINGS 4
 #define FRETS 6
 
+bool initialized = false;
+
 OledDisplay::OledDisplay() : display(64, 128, &Wire)
 {
 }
@@ -67,14 +70,6 @@ void OledDisplay::begin()
 	pinMode(BUTTON_B, INPUT_PULLUP);
 	pinMode(BUTTON_C, INPUT_PULLUP);
 
-	initDisplay();
-	delay(500);
-	initGrid();
-	initToolbar();
-}
-
-void OledDisplay::initDisplay()
-{
 	display.begin(0x3C, true); // Address 0x3C default
 	display.clearDisplay();
 	display.setRotation(2);
@@ -84,10 +79,21 @@ void OledDisplay::initDisplay()
 
 	display.drawBitmap(0, (GRID_HEIGHT - 64) / 2, logo, 64, 64, SH110X_WHITE);
 
-	line(LOG_X, LOG_Y - 1, LOG_X + LOG_WIDTH, LOG_Y - 1);
-
 	printLogs();
 	display.display();
+	delay(500);
+	// initGrid();
+	// initToolbar();
+}
+
+void OledDisplay::init()
+{
+	initialized = true;
+	display.clearDisplay();
+	initGrid();
+	initToolbar();
+	printLogs();
+	line(LOG_X, LOG_Y - 1, LOG_X + LOG_WIDTH, LOG_Y - 1);
 }
 
 void OledDisplay::initGrid()
@@ -131,11 +137,12 @@ void OledDisplay::log(int value)
 
 void OledDisplay::log(String value)
 {
-	for (int i = 0; i < LOG_SIZE - 1; i++)
+	int log_size = initialized ? LOG_SIZE : LOG_SIZE_INIT;
+	for (int i = log_size - 1; i > 0; i--)
 	{
-		logs[i] = logs[i + 1];
+		logs[i] = logs[i - 1];
 	}
-	logs[LOG_SIZE - 1] = value;
+	logs[0] = value;
 	Serial.println("> " + value);
 	printLogs();
 	display.display();
@@ -146,19 +153,19 @@ void OledDisplay::log(const char *text)
 	log(String(text));
 }
 
-bool OledDisplay::button(int button)
-{
-	return digitalRead(button) != HIGH;
-}
-
 void OledDisplay::printLogs()
 {
-	clear(LOG_X, LOG_Y, LOG_WIDTH, LOG_HEIGHT);
+	int log_size = initialized ? LOG_SIZE : LOG_SIZE_INIT;
+	int log_y = initialized ? LOG_Y : -4;
+	int log_height = initialized ? LOG_HEIGHT : 128;
+	int line_height = 10;
+	clear(LOG_X, log_y, LOG_WIDTH, log_height);
 	display.setTextColor(SH110X_WHITE);
 
-	for (int i = 0; i < LOG_SIZE; i++)
+	display.setCursor(LOG_X, log_y);
+	for (int i = log_size - 1; i >= 0; i--)
 	{
-		print(logs[i].c_str(), LOG_X, LOG_Y + i * 10 + 2);
+		print(logs[i].c_str(), LOG_X, log_y + log_height - (i + 1) * line_height + 2);
 	}
 	display.display();
 }
@@ -167,6 +174,11 @@ void OledDisplay::print(const char *text, int x, int y)
 {
 	display.setCursor(x, y);
 	display.print(text);
+}
+
+bool OledDisplay::button(int button)
+{
+	return digitalRead(button) != HIGH;
 }
 
 void OledDisplay::line(int x1, int y1, int x2, int y2)
@@ -195,9 +207,12 @@ void OledDisplay::clear(int x, int y, int width, int height)
 
 void OledDisplay::toolbar(const char *text)
 {
-	Serial.printf("Toolbar %s\n", text);
-	display.fillRect(TOOLBAR_X, TOOLBAR_Y, TOOLBAR_WIDTH, TOOLBAR_HEIGHT, SH110X_WHITE);
-	display.setTextColor(SH110X_BLACK);
-	print(text, TOOLBAR_X + 10, TOOLBAR_Y + 2);
-	display.display();
+	if (!initialized)
+	{
+		Serial.printf("Toolbar %s\n", text);
+		display.fillRect(TOOLBAR_X, TOOLBAR_Y, TOOLBAR_WIDTH, TOOLBAR_HEIGHT, SH110X_WHITE);
+		display.setTextColor(SH110X_BLACK);
+		print(text, TOOLBAR_X + 10, TOOLBAR_Y + 2);
+		display.display();
+	}
 }

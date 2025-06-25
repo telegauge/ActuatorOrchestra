@@ -36,6 +36,7 @@ class OledDisplay
 public:
 	OledDisplay();
 	void begin();
+	void init();
 	void clear(int x, int y, int width, int height);
 
 	void print(const char *text, int x, int y);

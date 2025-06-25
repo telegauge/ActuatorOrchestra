@@ -5,6 +5,7 @@
 #include <LittleFS.h>
 
 extern float readBatteryPercent();
+extern String scanI2C();
 
 #define API_PREFIX "@ "
 
@@ -58,11 +59,23 @@ void handle_play()
 	g_oled->toolbar("playing");
 }
 
+String handle_scanI2C()
+{
+	// g_oled->log(API_PREFIX "scanI2C");
+	String devices = scanI2C();
+	String json = "{";
+	json += "\"devices\":\"" + devices + "\"";
+	json += "}";
+	return json;
+}
+
 String handle_info()
 {
-	g_oled->log(API_PREFIX "info");
+	// g_oled->log(API_PREFIX "info");
 	String json = "{";
 	json += "\"instrument\":\"ukulele\",";
+	json += "\"type\":\"guitar\",";
+	json += "\"devices\":\"" + scanI2C() + "\",";
 	json += "\"strings\":" + String(g_ukulele->numStrings());
 	json += ",\"fretters\":" + String(g_ukulele->numFretters());
 	json += "}";
@@ -148,6 +161,11 @@ void handle_websocket_event(WebSocketsServer &ws, uint8_t num, WStype_t type, ui
 			String response = handle_info();
 			ws.sendTXT(num, response);
 		}
+		else if (strcmp(cmd, "scani2c") == 0)
+		{
+			String response = handle_scanI2C();
+			ws.sendTXT(num, response);
+		}
 		else if (strcmp(cmd, "battery") == 0)
 		{
 			String response = handle_battery();
@@ -217,6 +235,11 @@ void init_api(WebServer &server, WebSocketsServer &ws, Ukulele *ukulele, OledDis
 						{
 		String json = handle_info();
 		sendCORS(server, 200, "application/json", json); });
+
+	server.on("/api/scani2c", HTTP_GET, [&server]()
+						{
+		String response = handle_scanI2C();
+		sendCORS(server, 200, "text/plain", response); });
 
 	server.on("/api/battery", HTTP_GET, [&server]()
 						{

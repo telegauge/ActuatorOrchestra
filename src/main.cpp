@@ -5,6 +5,7 @@
 #include <WebServer.h>
 #include <WebSocketsServer.h>
 #include <WiFi.h>
+#include <Wire.h>
 
 #include "../lib/ConfigLoader/ConfigLoader.h"
 #include "../lib/ActuatorFactory/ActuatorFactory.h"
@@ -15,9 +16,10 @@
 
 WiFiClient wifi;
 Adafruit_PWMServoDriver pwm1 = Adafruit_PWMServoDriver(0x40);
-Adafruit_PWMServoDriver pwm2 = Adafruit_PWMServoDriver(0x42);
+Adafruit_PWMServoDriver pwm2 = Adafruit_PWMServoDriver(0x46);
 std::vector<Adafruit_PWMServoDriver *> pwms;
 
+String scanI2C();
 Ukulele *ukulele = nullptr;
 TimingEngine timingEngine;
 OledDisplay oled;
@@ -67,6 +69,9 @@ void setup()
 	Serial.println(ip);
 	oled.log(ip.c_str()); // Convert IPAddress to String before logging
 
+	String devices = scanI2C();
+	// oled.log(devices.c_str());
+
 	InstrumentConfig config;
 	if (!ConfigLoader::loadConfig("/ukulele.json", config))
 	{
@@ -87,6 +92,7 @@ void setup()
 	init_api(server, webSocket, ukulele, &oled, &paused);
 
 	oled.toolbar(paused ? "xx" : "yy");
+	oled.init();
 	server.begin();
 }
 
@@ -114,74 +120,30 @@ void loop()
 	webSocket.loop();
 }
 
-void Xloop()
+String scanI2C()
 {
-	server.handleClient();
-	int ms = millis();
-	int duration = 1000;
-	int pause = 500;
-	if (oled.button(BUTTON_A))
+	String devices;
+	int address;
+	int error;
+	int nDevices = 0;
+	Serial.println("I2C Scanning...");
+	for (address = 1; address < 127; address++)
 	{
-		Serial.printf("Button A %d\n", pressed[BUTTON_A]);
-		if (!pressed[BUTTON_A])
-		{
-			pressed[BUTTON_A] = true;
-			paused = !paused;
-			oled.log(paused ? "paused" : "playing");
-			delay(300); // debounce
-			ukulele->home();
-		}
-		else
-		{
-			pressed[BUTTON_A] = false;
-		}
-	}
+		Wire.beginTransmission(address);
+		error = Wire.endTransmission();
 
-	if (oled.button(BUTTON_B))
-	{
-		if (!pressed[BUTTON_B])
+		if (error == 0)
 		{
-			pressed[BUTTON_B] = true;
-			Serial.printf("Strumming %d\n", ms);
-			for (int i = 0; i < 30; i++)
-			{
-				ukulele->command("strum", ms + 100 * i, {});
-			}
-			ukulele->command("home", ms + 100 + 150 * 30, {});
-			oled.log("Strum!");
+			char hex_string[10];
+			snprintf(hex_string, sizeof(hex_string), "0x%02X", address);
+			Serial.println(hex_string);
+			oled.log(hex_string);
+			nDevices++;
+			devices += String(hex_string) + ",";
 		}
 	}
-	else
-	{
-		pressed[BUTTON_B] = false;
-	}
-
-	if (!paused)
-	{
-		// ukulele->test();
-		// ukulele->loop(ms);
-		// // ukulele->strum(duration);
-
-		for (int i = 0; i < 16; i++)
-		{
-			server.handleClient();
-			char buf[32];
-			snprintf(buf, sizeof(buf), "Pos %d", i);
-			oled.log(buf);
-			Serial.printf("Pos %d\n", i);
-			std::vector<bool> fret_positions(Bools[i], Bools[i] + 4);
-			ukulele->fret(0, fret_positions);
-			delay(pause);
-			ukulele->strum(100);
-			delay(pause);
-		}
-
-		// 	delay(20);
-		// }
-		// delay(500);
-	}
-	yield();
-	delay(500);
+	Serial.printf("I2C Scanning... done %d devices\n", nDevices);
+	return devices;
 }
 
 float readBatteryPercent()

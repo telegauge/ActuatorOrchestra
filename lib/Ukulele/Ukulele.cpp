@@ -9,24 +9,22 @@ Ukulele::Ukulele(const InstrumentConfig &config, std::vector<Adafruit_PWMServoDr
 {
 	for (const auto &a : config.pluckers)
 	{
-		Serial.printf("- init plucker: %s %d %d\n", a.name.c_str(), a.pin, a.bus);
 		if (a.type == "plucker")
 		{
 			if (a.bus >= 0 && a.bus < pwm.size())
 			{
-				Serial.printf("- init plucker: %s %d %d\n", a.name.c_str(), a.pin, a.bus);
+				Serial.printf("- init plucker: %s (%d) b:%d\n", a.name.c_str(), a.pin, a.bus);
 				pluckers.push_back(new Plucker(a.pin, pwm[a.bus], a.name));
 			}
 		}
 	}
 	for (const auto &f : config.fretters)
 	{
-		Serial.printf("- init fretter: %s %d %d %d\n", f.name.c_str(), f.pin_left, f.pin_right, f.bus);
 		if (f.type == "fretter")
 		{
 			if (f.bus >= 0 && f.bus < pwm.size())
 			{
-				Serial.printf("- init fretter: %s %d %d %d\n", f.name.c_str(), f.pin_left, f.pin_right, f.bus);
+				Serial.printf("- init fretter: %s: (%d, %d) b:%d\n", f.name.c_str(), f.pin_left, f.pin_right, f.bus);
 				fretters.push_back(new Fretter(f.pin_left, f.pin_right, pwm[f.bus], f.name));
 			}
 		}
@@ -170,7 +168,7 @@ void Ukulele::fret(int fret_number, const std::vector<bool> &pressed)
 			{"10", 180},
 	};
 
-	Serial.printf("Fret %d: %s %s\n", fret_number, key_left.c_str(), key_right.c_str());
+	Serial.printf("  Fret %d: %s %s\n", fret_number, key_left.c_str(), key_right.c_str());
 	fretters[fret_number]->fret(fret_map.at(key_left), fret_map.at(key_right));
 
 	oled->grid(0, fret_number, pressed[0]);
