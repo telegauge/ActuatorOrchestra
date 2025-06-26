@@ -1,11 +1,29 @@
 #include <Arduino.h>
 #include "ConfigLoader.h"
 #include <FS.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
+#include <ArduinoJson.h>
 
+void ConfigLoader::listFiles()
+{
+	Serial.println("Listing files:");
+	File root = LittleFS.open("/");
+	File file = root.openNextFile();
+	while (file)
+	{
+		Serial.print(file.name());
+		Serial.println(":");
+		while (file.available()) {
+			Serial.write(file.read());
+		}
+		Serial.println("\n---");
+		file = root.openNextFile();
+	}
+	Serial.println("Done");
+}
 bool ConfigLoader::loadConfig(const char *filename, InstrumentConfig &config)
 {
-	File file = SPIFFS.open(filename, "r");
+	File file = LittleFS.open(filename, "r");
 	if (!file)
 	{
 		return false;
@@ -53,10 +71,24 @@ bool ConfigLoader::loadConfig(const char *filename, InstrumentConfig &config)
 
 bool ConfigLoader::saveConfig(const char *filename, const String &json)
 {
-	File file = SPIFFS.open(filename, "w");
+	File file = LittleFS.open(filename, "w");
 	if (!file)
 		return false;
 	file.print(json);
 	file.close();
 	return true;
 }
+
+bool ConfigLoader::loadWiFiConfig(const char *filename, WiFiConfig &config) {
+	File file = LittleFS.open(filename, "r");
+	if (!file) return false;
+	StaticJsonDocument<256> doc;
+	deserializeJson(doc, file);
+	file.close();
+	if (!doc.containsKey("ssid") || !doc.containsKey("password")) return false;
+	config.ssid = doc["ssid"].as<String>();
+	config.password = doc["password"].as<String>();
+	config.device_name = doc["device_name"].as<String>();
+	return true;
+}
+

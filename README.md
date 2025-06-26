@@ -10,16 +10,6 @@ Actuator Orchestra is a modular system for robotic musical instruments. Each ins
 - **Modular actuators:** Each actuator (servo, solenoid, etc.) is managed by its own class, instantiated based on config.
 - **Timing engine:** Each board can play notes at precise times, and synchronize with others for ensemble performance.
 - **Song files (future):** Songs will be defined in files and played by the system.
-- **Old code:** Previous implementation is preserved in the `old/` directory.
-
-### Directory Structure
-
-- `src/` - Main application code (new architecture)
-- `lib/` - Custom libraries (actuators, timing, etc.)
-- `include/` - Project headers
-- `config/` - Instrument configuration files (JSON)
-- `test/` - Unit tests
-- `old/` - Previous codebase (for reference)
 
 ---
 
@@ -47,21 +37,27 @@ Actuator Orchestra is a modular system for robotic musical instruments. Each ins
 
 ## Installation
 1. Clone this repository:
+
    ```sh
    git clone <repo-url>
    cd ActuatorOrchestra
    ```
+
 2. Install PlatformIO (if not already installed):
    https://platformio.org/install
 3. Open the project in [VSCode](https://code.visualstudio.com/) with the PlatformIO extension.
 
 ## Building and Uploading
+
 1. Connect your Adafruit Feather ESP32 V2 via USB.
 2. Build and upload the firmware using PlatformIO:
+
    ```sh
    pio run --target upload
    ```
+
 3. Open the serial monitor to view logs:
+
    ```sh
    pio device monitor
    ```
@@ -75,6 +71,7 @@ Actuator Orchestra is a modular system for robotic musical instruments. Each ins
 ## Project Structure
 
 - `src/` - Main application code
+- `data/` - Data files (e.g., WiFi config)
 - `lib/` - Custom libraries (actuators, timing, etc.)
 - `include/` - Project headers
 - `config/` - Instrument configuration files
@@ -88,6 +85,22 @@ Defined in `platformio.ini`:
 - Adafruit GFX Library (for the OLED)
 - Adafruit SH110X (for the OLED)
 - Adafruit PWM Servo Driver Library (for the servos)
+
+
+## WiFi Configuration
+
+Create a `wifi.json` file in the root of the filesystem (uploaded with PlatformIO's uploadfs):
+
+```
+{
+  "ssid": "YourSSID",
+  "password": "YourPassword",
+	"device_name": "YourDeviceName"
+}
+```
+The `device_name` is the identifier used by your wifi to describe the device.
+
+This file is required for WiFi connectivity and is not tracked in version control.
 
 ## Connect
 

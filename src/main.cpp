@@ -1,11 +1,12 @@
 #include <Arduino.h>
 #include <Adafruit_PWMServoDriver.h>
 #include <FS.h>
-#include <SPIFFS.h>
+// #include <SPIFFS.h>
 #include <WebServer.h>
 #include <WebSocketsServer.h>
 #include <WiFi.h>
 #include <Wire.h>
+#include <LittleFS.h>
 
 #include "../lib/ConfigLoader/ConfigLoader.h"
 #include "../lib/ActuatorFactory/ActuatorFactory.h"
@@ -41,13 +42,42 @@ void setup()
 	oled.begin();
 
 	oled.log("Booting...");
-	if (!SPIFFS.begin(true))
+
+	// FILESYSTEM
+		if (!LittleFS.begin(true))
 	{
-		oled.log("SPIFFS Fail");
-		Serial.println("SPIFFS Mount Failed");
+		oled.log("LittleFS Fail");
+		Serial.println("LittleFS Mount Failed");
 		return;
 	}
-	oled.log("SPIFFS OK");
+	oled.log("LittleFS OK");
+	ConfigLoader::listFiles();
+
+
+	// Load WiFi credentials from /wifi.json
+	oled.log("WIFI...");
+	WiFiConfig wifiConfig;
+	if (!ConfigLoader::loadWiFiConfig("/wifi.json", wifiConfig)) {
+		oled.log("...FAIL");
+		Serial.println("Failed to load WiFi config: wifi.json");
+		return;
+	}
+	WiFi.setHostname(wifiConfig.device_name.c_str());
+	oled.log(wifiConfig.device_name.c_str());
+	WiFi.begin(wifiConfig.ssid.c_str(), wifiConfig.password.c_str());
+	while (WiFi.status() != WL_CONNECTED)
+	{
+		delay(500);
+		Serial.print(".");
+	}
+	String ip = WiFi.localIP().toString();
+	Serial.print("IP: ");
+	Serial.println(ip);
+	ip.replace("192.168.", "..."); // hide the IP address
+	oled.log(ip.c_str()); // Convert IPAddress to String before logging
+
+
+	// SERVO
 	pwm1.begin();
 	pwm2.begin();
 
@@ -55,19 +85,6 @@ void setup()
 	pwms.push_back(&pwm1); // Add first PWM driver (0x40)
 	pwms.push_back(&pwm2); // Add second PWM driver (0x42)
 	oled.log("Servo OK");
-
-	WiFi.setHostname("AO-Ukulele");
-	WiFi.begin("Blaze", "shellycat");
-	while (WiFi.status() != WL_CONNECTED)
-	{
-		delay(500);
-		Serial.print(".");
-	}
-	Serial.print("IP: ");
-	String ip = WiFi.localIP().toString();
-	ip.replace("192.168.", "..."); // hide the IP address
-	Serial.println(ip);
-	oled.log(ip.c_str()); // Convert IPAddress to String before logging
 
 	String devices = scanI2C();
 	// oled.log(devices.c_str());

@@ -41,11 +41,19 @@ struct InstrumentConfig
 	std::vector<FretterConfig> fretters;
 };
 
+struct WiFiConfig {
+	String ssid;
+	String password;
+	String device_name;
+};
+
 class ConfigLoader
 {
 public:
 	static bool loadConfig(const char *filename, InstrumentConfig &config);
 	static bool saveConfig(const char *filename, const String &json);
+	static void listFiles();
+	static bool loadWiFiConfig(const char *filename, WiFiConfig &config);
 };
 
 #endif // CONFIGLOADER_H
