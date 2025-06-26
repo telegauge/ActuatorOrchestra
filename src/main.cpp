@@ -44,20 +44,20 @@ void setup()
 	oled.log("Booting...");
 
 	// FILESYSTEM
-		if (!LittleFS.begin(true))
+	if (!LittleFS.begin(true))
 	{
 		oled.log("LittleFS Fail");
 		Serial.println("LittleFS Mount Failed");
 		return;
 	}
-	oled.log("LittleFS OK");
+	oled.log("Files    OK");
 	ConfigLoader::listFiles();
-
 
 	// Load WiFi credentials from /wifi.json
 	oled.log("WIFI...");
 	WiFiConfig wifiConfig;
-	if (!ConfigLoader::loadWiFiConfig("/wifi.json", wifiConfig)) {
+	if (!ConfigLoader::loadWiFiConfig("/wifi.json", wifiConfig))
+	{
 		oled.log("...FAIL");
 		Serial.println("Failed to load WiFi config: wifi.json");
 		return;
@@ -74,8 +74,7 @@ void setup()
 	Serial.print("IP: ");
 	Serial.println(ip);
 	ip.replace("192.168.", "..."); // hide the IP address
-	oled.log(ip.c_str()); // Convert IPAddress to String before logging
-
+	oled.log(ip.c_str());					 // Convert IPAddress to String before logging
 
 	// SERVO
 	pwm1.begin();
@@ -84,18 +83,19 @@ void setup()
 	// Add two PWM servo drivers to the vector of drivers
 	pwms.push_back(&pwm1); // Add first PWM driver (0x40)
 	pwms.push_back(&pwm2); // Add second PWM driver (0x42)
-	oled.log("Servo OK");
+	oled.log("Servo    OK");
 
-	String devices = scanI2C();
+	// String devices = scanI2C();
 	// oled.log(devices.c_str());
 
-	// Config config2;
-	// if (!ConfigLoader::loadConfig("/config.json", config2))
-	// {
-	// 	oled.log("Config FAIL");
-	// 	Serial.println("Failed to load config: config.json");
-	// 	return;
-	// }
+	BaseConfig config2;
+	if (!ConfigLoader::loadConfig("/config.json", config2))
+	{
+		oled.log("Config  FAIL");
+		Serial.println("Failed to load config: config.json");
+		return;
+	}
+	oled.log(config2.name.c_str());
 
 	InstrumentConfig config;
 	if (!ConfigLoader::loadConfig("/ukulele.json", config))
@@ -105,20 +105,20 @@ void setup()
 		Serial.println("Failed to load config");
 		return;
 	}
-	oled.log("Config OK");
-	oled.log(config.instrument.c_str());
+	oled.log("Config   OK");
+	// oled.log(config.instrument.c_str());
 
 	ukulele = new Ukulele(config, pwms, &oled);
 	ukulele->begin();
 	ukulele->home();
 
-	oled.log("Ready");
-
 	init_api(server, webSocket, ukulele, &oled, &paused);
+	oled.log("API      OK");
 
 	oled.toolbar(paused ? "xx" : "yy");
 	oled.init();
 	server.begin();
+	oled.log("Ready!");
 }
 
 bool Bools[][4] = {

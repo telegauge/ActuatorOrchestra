@@ -13,7 +13,8 @@ void ConfigLoader::listFiles()
 	{
 		Serial.print(file.name());
 		Serial.println(":");
-		while (file.available()) {
+		while (file.available())
+		{
 			Serial.write(file.read());
 		}
 		Serial.println("\n---");
@@ -21,6 +22,38 @@ void ConfigLoader::listFiles()
 	}
 	Serial.println("Done");
 }
+
+bool ConfigLoader::loadConfig(const char *filename, BaseConfig &config)
+{
+	Serial.println("Loading config: " + String(filename));
+	File file = LittleFS.open(filename, "r");
+	if (!file)
+	{
+		return false;
+	}
+	size_t size = file.size();
+	std::unique_ptr<char[]> buf(new char[size + 1]);
+	file.readBytes(buf.get(), size);
+	buf[size] = '\0';
+	file.close();
+
+	StaticJsonDocument<2048> doc;
+	DeserializationError error = deserializeJson(doc, buf.get());
+	if (error)
+	{
+		Serial.println("Error: " + String(error.c_str()));
+		return false;
+	}
+
+	config.id = doc["id"];
+	config.config_version = doc["config_version"];
+	config.type = doc["type"].as<std::string>();
+	config.ip = doc["ip"].as<std::string>();
+	config.name = doc["name"].as<std::string>();
+	config.config = doc["config"];
+	return true;
+}
+
 bool ConfigLoader::loadConfig(const char *filename, InstrumentConfig &config)
 {
 	File file = LittleFS.open(filename, "r");
@@ -38,6 +71,7 @@ bool ConfigLoader::loadConfig(const char *filename, InstrumentConfig &config)
 	DeserializationError error = deserializeJson(doc, buf.get());
 	if (error)
 	{
+		Serial.println("Error: " + String(error.c_str()));
 		return false;
 	}
 
@@ -79,16 +113,18 @@ bool ConfigLoader::saveConfig(const char *filename, const String &json)
 	return true;
 }
 
-bool ConfigLoader::loadWiFiConfig(const char *filename, WiFiConfig &config) {
+bool ConfigLoader::loadWiFiConfig(const char *filename, WiFiConfig &config)
+{
 	File file = LittleFS.open(filename, "r");
-	if (!file) return false;
+	if (!file)
+		return false;
 	StaticJsonDocument<256> doc;
 	deserializeJson(doc, file);
 	file.close();
-	if (!doc.containsKey("ssid") || !doc.containsKey("password")) return false;
+	if (!doc.containsKey("ssid") || !doc.containsKey("password"))
+		return false;
 	config.ssid = doc["ssid"].as<String>();
 	config.password = doc["password"].as<String>();
 	config.device_name = doc["device_name"].as<String>();
 	return true;
 }
-

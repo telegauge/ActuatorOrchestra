@@ -246,7 +246,8 @@ void init_api(WebServer &server, WebSocketsServer &ws, Ukulele *ukulele, OledDis
 		String response = handle_battery();
 		sendCORS(server, 200, "text/plain", response); });
 
-	server.on("/api/files", HTTP_GET, [&server]() {
+	server.on("/api/files", HTTP_GET, [&server]()
+						{
 		String out = "[";
 		File root = LittleFS.open("/", "r");
 		File file = root.openNextFile();
@@ -263,23 +264,23 @@ void init_api(WebServer &server, WebSocketsServer &ws, Ukulele *ukulele, OledDis
 			file = root.openNextFile();
 		}
 		out += "]";
-		sendCORS(server, 200, "application/json", out);
-	});
+		sendCORS(server, 200, "application/json", out); });
 
 	server.on("/api/config", HTTP_POST, [&server]()
-	{
+						{
 		if (!server.hasArg("config")) {
 			g_oled->log(API_PREFIX "config: no body");
-			sendCORS(server, 400, "text/plain", "No config body");
+			sendCORS(server, 400, "text/plain", "{\"status\": 0, \"result\": \"No config body\"}");
 			return;
 		}
 		String json = server.arg("config");
 		if (ConfigLoader::saveConfig("/config.json", json)) {
-			g_oled->log(API_PREFIX "config: saved");
-			sendCORS(server, 200, "text/plain", "Config saved");
+			g_oled->log(API_PREFIX "new config");
+			sendCORS(server, 200, "text/plain", "{\"status\": 1, \"result\": \"Config saved\"}");
+			g_oled->log(API_PREFIX "restarting");
+			delay(2000);
+			ESP.restart();
 		} else {
-			g_oled->log(API_PREFIX "config: save fail");
-			sendCORS(server, 400, "text/plain", "Config save failed");
-		}
-	});
+			sendCORS(server, 400, "text/plain", "{\"status\": 0, \"result\": \"Config failed\"}");
+		} });
 }

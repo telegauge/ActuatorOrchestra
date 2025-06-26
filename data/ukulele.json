@@ -1,5 +1,6 @@
 {
   "instrument": "ukulele",
+	"config_version": 0,
   "strings": 4,
   "pluckers": [
     {
