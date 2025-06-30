@@ -17,7 +17,7 @@
 
 WiFiClient wifi;
 Adafruit_PWMServoDriver pwm1 = Adafruit_PWMServoDriver(0x40);
-Adafruit_PWMServoDriver pwm2 = Adafruit_PWMServoDriver(0x41);
+Adafruit_PWMServoDriver pwm2 = Adafruit_PWMServoDriver(0x42);
 std::vector<Adafruit_PWMServoDriver *> pwms;
 
 String scanI2C();

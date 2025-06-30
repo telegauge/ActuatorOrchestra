@@ -21,16 +21,16 @@ void sendCORS(WebServer &server, int code, const char *type, const String &body)
 }
 
 // Shared command handlers
-void handle_strum(int delay_ms)
+void handle_strum()
 {
 	g_oled->log(API_PREFIX "strum");
-	g_ukulele->strum(0, delay_ms);
+	g_ukulele->strum();
 }
 
 void handle_pluck(int idx)
 {
 	g_oled->log((String(API_PREFIX "pluck ") + idx).c_str());
-	g_ukulele->pluck(idx - 1);
+	g_ukulele->pluck(idx);
 }
 
 void handle_fret(int fret, const String &pressed)
@@ -41,8 +41,8 @@ void handle_fret(int fret, const String &pressed)
 
 void handle_chord(const String &chord, const String &pressed)
 {
-	g_ukulele->chord(pressed.c_str());
 	g_oled->log((String(API_PREFIX "chord ") + chord).c_str());
+	g_ukulele->chord(pressed.c_str());
 }
 
 void handle_pause()
@@ -128,7 +128,7 @@ void handle_websocket_event(WebSocketsServer &ws, uint8_t num, WStype_t type, ui
 
 		if (strcmp(cmd, "strum") == 0)
 		{
-			handle_strum(doc["delay"] | 50);
+			handle_strum();
 		}
 		else if (strcmp(cmd, "pluck") == 0)
 		{
@@ -195,7 +195,7 @@ void init_api(WebServer &server, WebSocketsServer &ws, Ukulele *ukulele, OledDis
 	server.on("/api/strum", HTTP_POST, [&server]()
 						{
 		int delay = server.hasArg("delay") ? server.arg("delay").toInt() : 50;
-		handle_strum(delay);
+		handle_strum();
 		sendCORS(server, 200, "text/plain", "Strummed"); });
 
 	server.on("/api/pluck", HTTP_POST, [&server]()

@@ -91,76 +91,24 @@ void Ukulele::home()
 		f->home();
 }
 
-void Ukulele::test()
+// Pluck a specific string
+void Ukulele::pluck(int string_num)
 {
-	for (auto *f : fretters)
-		f->minmax(1000);
+	if (string_num > 0 && string_num <= numStrings())
+		pluckers[string_num - 1]->pluck();
 }
 
 // Strum all the strings
-void Ukulele::strum(int duration_ms, int delay_ms)
+void Ukulele::strum()
 {
 	for (auto *s : pluckers)
 	{
 		s->pluck();
-		delay(delay_ms);
-	}
-	if (duration_ms > 0)
-	{
-		delay(duration_ms);
-		// home();
 	}
 }
 
-// Pluck a specific string
-void Ukulele::pluck(int idx, int duration_ms)
+void Ukulele::fret(int fret_num, const String &fingers)
 {
-	if (idx >= 0 && idx < (int)pluckers.size())
-		pluckers[idx]->pluck(duration_ms);
-}
-
-void Ukulele::chord(const std::string &pressed)
-{
-	// Serial.printf("Chord %s\n", pressed.c_str());
-	if (pressed.empty())
-		return;
-	int num_strings = pressed.size();
-	int num_fretters = fretters.size();
-
-	// For each fret from 0 to max_fret, build a mask and call fret(fret_num, mask)
-	for (int fret_num = 0; fret_num < num_fretters; ++fret_num)
-	{
-		std::string mask(num_strings, '0');
-		for (int s = 0; s < num_strings; ++s)
-		{
-			int string_fret = (pressed[s] >= '0' && pressed[s] <= '9') ? (pressed[s] - '0') : 0;
-			string_fret -= 1;
-			if (string_fret == fret_num)
-				mask[s] = '1';
-		}
-		fret(fret_num, String(mask.c_str()));
-		// Serial.printf("  >> %s: %d:%s\n", pressed.c_str(), fret_num, mask.c_str());
-	}
-}
-
-// Fret a specific fret
-void Ukulele::fret(int fret_number, const std::vector<bool> &pressed)
-{
-	// Use fret_number as needed for your logic
-	size_t n = fretters.size();
-	// Serial.printf("::Fret %d %d %d\n", fret_number, pressed.size(), 2 * n);
-	// if (pressed.size() < 2 * n)
-	// 	return;
-
-	// Serial.print("xx");
-
-	std::string key_left;
-	std::string key_right;
-
-	key_left += pressed[0] ? '1' : '0';
-	key_left += pressed[1] ? '1' : '0';
-	key_right += pressed[2] ? '1' : '0';
-	key_right += pressed[3] ? '1' : '0';
 	const std::map<std::string, int> fret_map = {
 			{"11", 0},
 			{"01", 60},
@@ -168,23 +116,107 @@ void Ukulele::fret(int fret_number, const std::vector<bool> &pressed)
 			{"10", 180},
 	};
 
-	Serial.printf("  Fret %d: %s %s\n", fret_number, key_left.c_str(), key_right.c_str());
-	fretters[fret_number]->fret(fret_map.at(key_left), fret_map.at(key_right));
+	if (fret_num < 1 || fret_num > numFretters())
+		return;
 
-	oled->grid(0, fret_number, pressed[0]);
-	oled->grid(1, fret_number, pressed[1]);
-	oled->grid(2, fret_number, pressed[2]);
-	oled->grid(3, fret_number, pressed[3]);
+	String key_left = fingers.substring(0, 2);
+	String key_right = fingers.substring(2, 4);
+	int left_val = fret_map.at(std::string(key_left.c_str()));
+	int right_val = fret_map.at(std::string(key_right.c_str()));
+
+	Serial.printf("Fret %d=%s: %s/%s\n", fret_num, fingers.c_str(), key_left.c_str(), key_right.c_str());
+
+	fretters[fret_num - 1]->fret(left_val, right_val);
+	oled->grid(0, fret_num - 1, fingers[0] != '0');
+	oled->grid(1, fret_num - 1, fingers[1] != '0');
+	oled->grid(2, fret_num - 1, fingers[2] != '0');
+	oled->grid(3, fret_num - 1, fingers[3] != '0');
 }
 
-void Ukulele::fret(int fret_number, const String &pressed)
+void Ukulele::chord(const String &pressed)
 {
-	Serial.printf("Fret %d: %s\n", fret_number, pressed.c_str());
-	std::vector<bool> pressed_vector;
-	for (size_t i = 0; i < pressed.length(); ++i)
-		pressed_vector.push_back((pressed[i] - '0') == fret_number);
-	fret(fret_number - 1, pressed_vector);
+
+	Serial.printf("Chord %s\n", pressed.c_str());
+	for (int fret_num = 1; fret_num <= numFretters(); ++fret_num)
+	{
+		std::string mask(numStrings(), '0');
+		for (int s = 1; s <= numStrings(); ++s)
+		{
+			int string_fret = pressed[s - 1] - '0';
+			// Serial.printf("  >> %s: %d:%d\n", pressed.c_str(), fret_num, string_fret);
+			if (string_fret == fret_num)
+				mask[s - 1] = '1';
+		}
+		fret(fret_num, String(mask.c_str()));
+	}
 }
+// }}
+
+// // Fret a chord
+// void Ukulele::chord(const String &pressed)
+// {
+// 	Serial.printf("Chord %s\n", pressed.c_str());
+
+// 	// For each fret from 0 to max_fret, build a mask and call fret(fret_num, mask)
+// 	for (int fret_num = 1; fret_num <= numFretters(); ++fret_num)
+// 	{
+// 		std::string mask(numStrings(), '0');
+// 		for (int s = 1; s <= numStrings(); ++s)
+// 		{
+// 			int string_fret = pressed[s - 1] - '0';
+// 			Serial.printf("  >> %s: %d:%d\n", pressed.c_str(), fret_num, string_fret);
+// 			if (string_fret == fret_num)
+// 				mask[s - 1] = '1';
+// 		}
+// 		fret(fret_num, String(mask.c_str()));
+// 		// Serial.printf("  >>>> %s: %d:%s\n", pressed.c_str(), fret_num, mask.c_str());
+// 	}
+// }
+
+// // Fret a specific fret
+// void Ukulele::fret(int fret_number, const std::vector<bool> &pressed)
+// {
+// 	Serial.printf("Fret2 %d: %s\n", fret_number, pressed.c_str());
+
+// 	// Use fret_number as needed for your logic
+// 	size_t n = fretters.size();
+// 	// Serial.printf("::Fret %d %d %d\n", fret_number, pressed.size(), 2 * n);
+// 	// if (pressed.size() < 2 * n)
+// 	// 	return;
+
+// 	// Serial.print("xx");
+
+// 	std::string key_left;
+// 	std::string key_right;
+
+// 	key_left += pressed[0] ? '1' : '0';
+// 	key_left += pressed[1] ? '1' : '0';
+// 	key_right += pressed[2] ? '1' : '0';
+// 	key_right += pressed[3] ? '1' : '0';
+// 	const std::map<std::string, int> fret_map = {
+// 			{"11", 0},
+// 			{"01", 60},
+// 			{"00", 120},
+// 			{"10", 180},
+// 	};
+
+// 	Serial.printf("  Fret %d: %s %s\n", fret_number, key_left.c_str(), key_right.c_str());
+// 	fretters[fret_number]->fret(fret_map.at(key_left), fret_map.at(key_right));
+
+// 	oled->grid(0, fret_number - 1, pressed[0]);
+// 	oled->grid(1, fret_number - 1, pressed[1]);
+// 	oled->grid(2, fret_number - 1, pressed[2]);
+// 	oled->grid(3, fret_number - 1, pressed[3]);
+// }
+
+// void Ukulele::fret(int fret_number, const String &pressed)
+// {
+// 	Serial.printf("Fret %d: %s\n", fret_number, pressed.c_str());
+// 	std::vector<bool> pressed_vector;
+// 	for (size_t i = 0; i < pressed.length(); ++i)
+// 		pressed_vector.push_back((pressed[i] - '0') == fret_number);
+// 	fret(fret_number, pressed_vector);
+// }
 
 int Ukulele::numStrings() const
 {
@@ -198,7 +230,6 @@ std::string Ukulele::stringName(int idx) const
 
 int Ukulele::numFretters() const
 {
-	Serial.printf("Num Fretters: %d\n", fretters.size());
 	return fretters.size();
 }
 
