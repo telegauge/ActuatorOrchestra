@@ -179,10 +179,11 @@ void Ukulele::fret(int fret_number, const std::vector<bool> &pressed)
 
 void Ukulele::fret(int fret_number, const String &pressed)
 {
+	Serial.printf("Fret %d: %s\n", fret_number, pressed.c_str());
 	std::vector<bool> pressed_vector;
 	for (size_t i = 0; i < pressed.length(); ++i)
-		pressed_vector.push_back(pressed[i] == '1');
-	fret(fret_number, pressed_vector);
+		pressed_vector.push_back((pressed[i] - '0') == fret_number);
+	fret(fret_number - 1, pressed_vector);
 }
 
 int Ukulele::numStrings() const

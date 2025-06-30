@@ -7,7 +7,7 @@
 extern float readBatteryPercent();
 extern String scanI2C();
 
-#define API_PREFIX "@ "
+#define API_PREFIX "@"
 
 // Global pointers for WebSocket callbacks
 static Ukulele *g_ukulele = nullptr;
@@ -36,7 +36,7 @@ void handle_pluck(int idx)
 void handle_fret(int fret, const String &pressed)
 {
 	g_oled->log((String(API_PREFIX "fret ") + fret).c_str());
-	g_ukulele->fret(fret - 1, pressed);
+	g_ukulele->fret(fret, pressed);
 }
 
 void handle_chord(const String &chord, const String &pressed)
@@ -85,9 +85,6 @@ String handle_info()
 String handle_battery()
 {
 	float percent = readBatteryPercent();
-	char buf[8];
-	snprintf(buf, sizeof(buf), "%d", (int)percent);
-	g_oled->log((String(API_PREFIX "BAT ") + buf + "%").c_str());
 	String json = "{";
 	json += "\"percent\":" + String(percent);
 	json += "}";
