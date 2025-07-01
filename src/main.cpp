@@ -77,8 +77,15 @@ void setup()
 	oled.log(ip.c_str());					 // Convert IPAddress to String before logging
 
 	// SERVO
-	pwm1.begin();
-	pwm2.begin();
+	Serial.printf("Servo 1 %d\n", pwm1.begin());
+	Serial.printf("Servo 2 %d\n", pwm2.begin());
+	pwm1.setPWMFreq(50);
+	pwm2.setPWMFreq(50);
+	pwm1.setPWM(1, 0, 1000);
+	pwm2.setPWM(1, 0, 1000);
+	delay(1000);
+	pwm1.setPWM(1, 0, 0);
+	pwm2.setPWM(1, 0, 0);
 
 	// Add two PWM servo drivers to the vector of drivers
 	pwms.push_back(&pwm1); // Add first PWM driver (0x40)
@@ -88,34 +95,33 @@ void setup()
 	// String devices = scanI2C();
 	// oled.log(devices.c_str());
 
-	BaseConfig config2;
+	JsonDocument config2;
 	if (!ConfigLoader::loadConfig("/config.json", config2))
 	{
 		oled.log("Config  FAIL");
 		Serial.println("Failed to load config: config.json");
 		return;
 	}
-	oled.log(config2.name.c_str());
+	oled.log(config2["name"].as<const char *>());
 
-	InstrumentConfig config;
-	if (!ConfigLoader::loadConfig("/ukulele.json", config))
-	{
-		// TO upload: pio run -t uploadfs
-		oled.log("Config FAIL");
-		Serial.println("Failed to load config");
-		return;
-	}
+	// InstrumentConfig config;
+	// if (!ConfigLoader::loadConfig("/ukulele.json", config))
+	// {
+	// 	// TO upload: pio run -t uploadfs
+	// 	oled.log("Config FAIL");
+	// 	Serial.println("Failed to load config");
+	// 	return;
+	// }
 	oled.log("Config   OK");
-	// oled.log(config.instrument.c_str());
 
-	ukulele = new Ukulele(config, pwms, &oled);
+	ukulele = new Ukulele(config2, pwms, &oled);
 	ukulele->begin();
 	ukulele->home();
 
 	init_api(server, webSocket, ukulele, &oled, &paused);
 	oled.log("API      OK");
 
-	oled.toolbar(paused ? "xx" : "yy");
+	// oled.toolbar(paused ? "xx" : "yy");
 	oled.init();
 	server.begin();
 	oled.log("Ready!");

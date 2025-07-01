@@ -5,23 +5,22 @@
 #include <vector>
 #include <string>
 
-struct BaseConfig
+// struct BaseConfig
+// {
+// 	int id;
+// 	int config_version;
+// 	std::string type;
+// 	std::string ip;
+// 	std::string name;
+// 	JsonObject config;
+// };
+
+struct WiFiConfig
 {
-	int id;
-	int config_version;
-	std::string type;
-	std::string ip;
-	std::string name;
-	JsonObject config;
-};
-
-
-struct WiFiConfig {
 	String ssid;
 	String password;
 	String device_name;
 };
-
 
 struct ActuatorConfig
 {
@@ -32,16 +31,15 @@ struct ActuatorConfig
 	JsonObject options;
 };
 
-struct FretterConfig
-{
-	std::string type;
-	int pin_left;
-	int pin_right;
-	int bus = 0;
-	std::string name;
-	JsonObject options;
-};
-
+// struct FretterConfig
+// {
+// 	std::string type;
+// 	int pin_left;
+// 	int pin_right;
+// 	int bus = 0;
+// 	std::string name;
+// 	JsonObject options;
+// };
 
 struct InstrumentConfig
 {
@@ -54,8 +52,8 @@ struct InstrumentConfig
 class ConfigLoader
 {
 public:
-	static bool loadConfig(const char *filename, InstrumentConfig &config);
-	static bool loadConfig(const char *filename, BaseConfig &config);
+	// static bool loadConfig(const char *filename, InstrumentConfig &config);
+	static bool loadConfig(const char *filename, JsonDocument &config);
 	static bool saveConfig(const char *filename, const String &json);
 	static void listFiles();
 	static bool loadWiFiConfig(const char *filename, WiFiConfig &config);

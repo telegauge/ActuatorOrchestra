@@ -13,8 +13,8 @@ Fretter::Fretter(int pin_left, int pin_right, Adafruit_PWMServoDriver *pwm, cons
 
 void Fretter::begin()
 {
-	// _pwm->begin();
-	// _pwm->setPWMFreq(50);
+	_pwm->begin();
+	_pwm->setPWMFreq(50);
 }
 
 void Fretter::loop(int ms)

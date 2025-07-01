@@ -4,31 +4,47 @@
 
 bool is_paused = false; // Global or static variable
 
-Ukulele::Ukulele(const InstrumentConfig &config, std::vector<Adafruit_PWMServoDriver *> &pwm, OledDisplay *oled_display)
+Ukulele::Ukulele(const JsonDocument &base_config, std::vector<Adafruit_PWMServoDriver *> &pwm, OledDisplay *oled_display)
 		: oled(oled_display)
 {
-	for (const auto &a : config.pluckers)
+	int bus = 0;
+
+	Serial.println("Ukulele Init");
+	JsonObjectConst config = base_config["config"].as<JsonObjectConst>();
+
+	// STRINGS
+	JsonArrayConst stringsArray = config["strings"].as<JsonArrayConst>();
+	Serial.printf(" Strings: %d\n", stringsArray.size());
+	for (JsonVariantConst v : stringsArray)
 	{
-		if (a.type == "plucker")
-		{
-			if (a.bus >= 0 && a.bus < pwm.size())
-			{
-				Serial.printf("- init plucker: %s (%d) b:%d\n", a.name.c_str(), a.pin, a.bus);
-				pluckers.push_back(new Plucker(a.pin, pwm[a.bus], a.name));
-			}
-		}
+		JsonObjectConst a = v.as<JsonObjectConst>();
+		// Serial.printf(" - %s\n", a["label"].as<const char *>());
+		const char *i2c = a["i2c"].as<const char *>();
+		if (strcmp(i2c, "0x40") == 0)
+			bus = 0;
+		else if (strcmp(i2c, "0x42") == 0)
+			bus = 1;
+		Serial.printf("  - String: %s, pin(%d) bus(%d)\n", a["label"].as<const char *>(), a["pin"].as<int>(), bus);
+		this->pluckers.push_back(new Plucker(a["pin"].as<int>(), pwm[bus], a["label"].as<const char *>()));
 	}
-	for (const auto &f : config.fretters)
+
+	// FRETS
+	Serial.printf(" Frets: %d\n", config["frets"].size());
+	JsonArrayConst frettersArray = config["frets"].as<JsonArrayConst>();
+	for (JsonVariantConst v : frettersArray)
 	{
-		if (f.type == "fretter")
-		{
-			if (f.bus >= 0 && f.bus < pwm.size())
-			{
-				Serial.printf("- init fretter: %s: (%d, %d) b:%d\n", f.name.c_str(), f.pin_left, f.pin_right, f.bus);
-				fretters.push_back(new Fretter(f.pin_left, f.pin_right, pwm[f.bus], f.name));
-			}
-		}
+		JsonObjectConst f = v.as<JsonObjectConst>();
+		// Serial.printf(" - %s\n", f["label"].as<const char *>());
+		const char *i2c = f["i2c_left"].as<const char *>();
+		if (strcmp(i2c, "0x40") == 0)
+			bus = 0;
+		else if (strcmp(i2c, "0x42") == 0)
+			bus = 1;
+
+		Serial.printf("  - Fret: %s, pins(%d, %d) bus(%d)\n", f["label"].as<const char *>(), f["pin_left"].as<int>(), f["pin_right"].as<int>(), bus);
+		this->fretters.push_back(new Fretter(f["pin_left"].as<int>(), f["pin_right"].as<int>(), pwm[bus], f["label"].as<const char *>()));
 	}
+	Serial.println("Ukulele Init Done");
 }
 
 Ukulele::~Ukulele()

@@ -13,7 +13,7 @@
 class Ukulele : public Instrument
 {
 public:
-	Ukulele(const InstrumentConfig &config, std::vector<Adafruit_PWMServoDriver *> &pwm, OledDisplay *oled);
+	Ukulele(const JsonDocument &base_config, std::vector<Adafruit_PWMServoDriver *> &pwm, OledDisplay *oled);
 	~Ukulele();
 	void begin() override;
 	void loop(int ms) override;
