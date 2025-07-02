@@ -22,7 +22,7 @@ Ukulele::Ukulele(const JsonDocument &base_config, std::vector<Adafruit_PWMServoD
 		const char *i2c = a["i2c"].as<const char *>();
 		if (strcmp(i2c, "0x40") == 0)
 			bus = 0;
-		else if (strcmp(i2c, "0x42") == 0)
+		else
 			bus = 1;
 		Serial.printf("  - String: %s, pin(%d) bus(%d)\n", a["label"].as<const char *>(), a["pin"].as<int>(), bus);
 		this->pluckers.push_back(new Plucker(a["pin"].as<int>(), pwm[bus], a["label"].as<const char *>()));
@@ -38,10 +38,10 @@ Ukulele::Ukulele(const JsonDocument &base_config, std::vector<Adafruit_PWMServoD
 		const char *i2c = f["i2c_left"].as<const char *>();
 		if (strcmp(i2c, "0x40") == 0)
 			bus = 0;
-		else if (strcmp(i2c, "0x42") == 0)
+		else
 			bus = 1;
 
-		Serial.printf("  - Fret: %s, pins(%d, %d) bus(%d)\n", f["label"].as<const char *>(), f["pin_left"].as<int>(), f["pin_right"].as<int>(), bus);
+		Serial.printf("  - Fret: %s, pins(%d, %d) i2c(%s) bus(%d)\n", f["label"].as<const char *>(), f["pin_left"].as<int>(), f["pin_right"].as<int>(), i2c, bus);
 		this->fretters.push_back(new Fretter(f["pin_left"].as<int>(), f["pin_right"].as<int>(), pwm[bus], f["label"].as<const char *>()));
 	}
 	Serial.println("Ukulele Init Done");
