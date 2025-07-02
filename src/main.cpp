@@ -98,9 +98,13 @@ void setup()
 	JsonDocument config2;
 	if (!ConfigLoader::loadConfig("/config.json", config2))
 	{
-		oled.log("Config  FAIL");
-		Serial.println("Failed to load config: config.json");
-		return;
+		Serial.println("Loading default config: config_default.json");
+		if (!ConfigLoader::loadConfig("/config_default.json", config2))
+		{
+			oled.log("Config  FAIL");
+			Serial.println("Failed to load config: config.json");
+			return;
+		}
 	}
 	oled.log(config2["name"].as<const char *>());
 

@@ -1,0 +1,13 @@
+{
+  "id": 1750885231616,
+  "name": "Generic",
+  "type": "guitar",
+  "config": {
+    "string_count": 1,
+    "strings": [],
+    "fret_count": 1,
+    "frets": []
+  },
+  "config_version": 1,
+  "cmds": []
+}

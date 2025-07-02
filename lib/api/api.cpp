@@ -282,7 +282,7 @@ void init_api(WebServer &server, WebSocketsServer &ws, Ukulele *ukulele, OledDis
 			sendCORS(server, 400, "text/plain", "{\"status\": 0, \"result\": \"Config failed\"}");
 		} });
 
-	server.on("/api/load_config", HTTP_GET, [&server]()
+	server.on("/api/get_config", HTTP_GET, [&server]()
 						{
 		Serial.println("Loading config: /config.json");
 		StaticJsonDocument<2048> config;

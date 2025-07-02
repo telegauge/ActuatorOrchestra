@@ -1,0 +1,228 @@
+<!-- @format -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Actuator Orchestra API</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 2em;
+        background: #f8f8f8;
+      }
+      h1 {
+        font-size: 1.5em;
+      }
+      code,
+      pre {
+        background: #eee;
+        padding: 2px 4px;
+        border-radius: 3px;
+      }
+      .endpoint {
+        margin-bottom: 1em;
+      }
+      .try {
+        margin-top: 0.5em;
+      }
+      .result {
+        background: #fff;
+        border: 1px solid #ccc;
+        padding: 0.5em;
+        margin-top: 0.5em;
+      }
+      label {
+        display: block;
+        margin-top: 0.5em;
+      }
+      input,
+      select,
+      button {
+        margin-top: 0.2em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Actuator Orchestra API</h1>
+    <p>This device exposes a REST API and WebSocket for instrument control.</p>
+    <h2>REST Endpoints</h2>
+    <div class="endpoint">
+      <b>POST <code>/api/strum</code></b
+      ><br />
+      <small>Strum the instrument.</small>
+      <form class="try" onsubmit="return send(event, 'POST', '/api/strum')">
+        <button type="submit">Strum</button>
+      </form>
+      <div class="result" id="result-strum"></div>
+    </div>
+    <div class="endpoint">
+      <b>POST <code>/api/pluck</code></b
+      ><br />
+      <small>Pluck a string. <code>string</code> (0-based index)</small>
+      <form
+        class="try"
+        onsubmit="return send(event, 'POST','/api/pluck', {string: document.getElementById('pluck-string').value})"
+      >
+        <label
+          >String:
+          <input id="pluck-string" type="number" min="0" max="7" value="0"
+        /></label>
+        <button type="submit">Pluck</button>
+      </form>
+      <div class="result" id="result-pluck"></div>
+    </div>
+    <div class="endpoint">
+      <b>POST <code>/api/fret</code></b
+      ><br />
+      <small
+        >Fret a note. <code>fret</code> (int),
+        <code>pressed</code> (string)</small
+      >
+      <form
+        class="try"
+        onsubmit="return send(event, 'POST','/api/fret', {fret: document.getElementById('fret-fret').value, pressed: document.getElementById('fret-pressed').value})"
+      >
+        <label
+          >Fret: <input id="fret-fret" type="number" min="0" value="0"
+        /></label>
+        <label>Pressed: <input id="fret-pressed" type="text" value="" /></label>
+        <button type="submit">Fret</button>
+      </form>
+      <div class="result" id="result-fret"></div>
+    </div>
+    <div class="endpoint">
+      <b>POST <code>/api/chord</code></b
+      ><br />
+      <small
+        >Play a chord. <code>chord</code> (string),
+        <code>pressed</code> (string)</small
+      >
+      <form
+        class="try"
+        onsubmit="return send(event, 'POST','/api/chord', {chord: document.getElementById('chord-chord').value, pressed: document.getElementById('chord-pressed').value})"
+      >
+        <label>Chord: <input id="chord-chord" type="text" value="" /></label>
+        <label
+          >Pressed: <input id="chord-pressed" type="text" value=""
+        /></label>
+        <button type="submit">Chord</button>
+      </form>
+      <div class="result" id="result-chord"></div>
+    </div>
+    <div class="endpoint">
+      <b>POST <code>/api/pause</code></b
+      ><br />
+      <small>Pause playback.</small>
+      <form class="try" onsubmit="return send(event, 'POST','/api/pause')">
+        <button type="submit">Pause</button>
+      </form>
+      <div class="result" id="result-pause"></div>
+    </div>
+    <div class="endpoint">
+      <b>POST <code>/api/play</code></b
+      ><br />
+      <small>Resume playback.</small>
+      <form class="try" onsubmit="return send(event, 'POST','/api/play')">
+        <button type="submit">Play</button>
+      </form>
+      <div class="result" id="result-play"></div>
+    </div>
+    <div class="endpoint">
+      <b>GET <code>/api/info</code></b
+      ><br />
+      <small>Get instrument info.</small>
+      <form class="try" onsubmit="return send(event, 'GET','/api/info')">
+        <button type="submit">Get Info</button>
+      </form>
+      <div class="result" id="result-info"></div>
+    </div>
+    <div class="endpoint">
+      <b>GET <code>/api/scani2c</code></b
+      ><br />
+      <small>Scan I2C devices.</small>
+      <form class="try" onsubmit="return send(event, 'GET','/api/scani2c')">
+        <button type="submit">Scan</button>
+      </form>
+      <div class="result" id="result-scani2c"></div>
+    </div>
+    <div class="endpoint">
+      <b>GET <code>/api/battery</code></b
+      ><br />
+      <small>Get battery percent.</small>
+      <form class="try" onsubmit="return send(event, 'GET','/api/battery')">
+        <button type="submit">Get Battery</button>
+      </form>
+      <div class="result" id="result-battery"></div>
+    </div>
+    <div class="endpoint">
+      <b>GET <code>/api/files</code></b
+      ><br />
+      <small>List files on the device.</small>
+      <form class="try" onsubmit="return send(event, 'GET','/api/files')">
+        <button type="submit">List Files</button>
+      </form>
+      <div class="result" id="result-files"></div>
+    </div>
+    <div class="endpoint">
+      <b>GET <code>/api/get_config</code></b
+      ><br />
+      <small>Get current config (JSON).</small>
+      <form class="try" onsubmit="return send(event, 'GET','/api/get_config')">
+        <button type="submit">Get Config</button>
+      </form>
+      <div class="result" id="result-get_config"></div>
+    </div>
+    <div class="endpoint">
+      <b>POST <code>/api/save_config</code></b
+      ><br />
+      <small>Save new config (JSON). Device will reboot after success.</small>
+      <form
+        class="try"
+        onsubmit="return send(event, 'POST','/api/save_config', {save_config: document.getElementById('save-config-json').value})"
+      >
+        <label
+          >Config JSON:<br />
+          <textarea id="save-config-json" rows="6" cols="60"></textarea>
+        </label>
+        <button type="submit">Save Config</button>
+      </form>
+      <div class="result" id="result-save_config"></div>
+    </div>
+    <script>
+      async function send(event, method, url, data, resultId) {
+        if (event) event.preventDefault();
+        let opts = { method };
+        let params = "";
+        if (method === "POST" && data) {
+          params = Object.keys(data)
+            .map(
+              (k) => encodeURIComponent(k) + "=" + encodeURIComponent(data[k])
+            )
+            .join("&");
+          opts.headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+          };
+          opts.body = params;
+        }
+        resultId = resultId || "result-" + url.split("/").pop();
+        let resultDiv = document.getElementById(resultId);
+        if (!resultDiv) {
+          console.error("Result div not found:", resultId);
+          return false;
+        }
+        resultDiv.textContent = "...";
+        try {
+          let resp = await fetch(url, opts);
+          let text = await resp.text();
+          resultDiv.textContent = text;
+        } catch (e) {
+          resultDiv.textContent = "Error: " + e;
+          console.error("API error:", e);
+        }
+        return false;
+      }
+    </script>
+  </body>
+</html>

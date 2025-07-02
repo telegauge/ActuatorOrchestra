@@ -8,15 +8,12 @@ alwaysApply: true
 ## Overview
 This project is a PlatformIO-based firmware for controlling servos and an OLED display, designed to automate the playing of a ukulele (or other instruments) using an ESP32 microcontroller. The codebase is modular, with custom libraries for display and servo control.
 
-When supplying results, minimuze the words and explaination.  Prioritize readable code.   Uke means Ukulele, the target instrument.
+When supplying results, minimize the words and explaination.  Prioritize readable code.   Uke means Ukulele, the target instrument.
 
 ## Main Directories
 - [`src/`](mdc:src): Contains the main application entry point ([main.cpp](mdc:src/main.cpp)).
 - [`lib/`](mdc:lib): Contains project-specific libraries:
-  - [`oled/`](mdc:lib/oled): OLED display and button handling ([OledDisplay.h](mdc:lib/oled/OledDisplay.h), [OledDisplay.cpp](mdc:lib/oled/OledDisplay.cpp)).
-  - [`servo/`](mdc:lib/servo): Servo control logic ([ServoController.h](mdc:lib/servo/ServoController.h), [ServoController.cpp](mdc:lib/servo/ServoController.cpp)).
 - [`include/`](mdc:include): Intended for public/project-wide header files (currently contains a README).
-- [`test/`](mdc:test): For PlatformIO unit tests (currently contains a README).
 
 ## Main Application
 - [`src/main.cpp`](mdc:src/main.cpp):
@@ -44,6 +41,8 @@ When supplying results, minimuze the words and explaination.  Prioritize readabl
 - Place new libraries in their own subdirectory under [`lib/`](mdc:lib), following the pattern of `oled/` and `servo/`.
 - Each library should have its own header and source files.
 
-Always keep the README.md document up to date.
+Always keep the README.md document up to date.   Occasionally update data/index.html with the API changes.
+
+Ignore the "old" directory.  Nothing in there is relavent.
 
 
