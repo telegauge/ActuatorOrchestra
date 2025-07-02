@@ -263,14 +263,15 @@ void init_api(WebServer &server, WebSocketsServer &ws, Ukulele *ukulele, OledDis
 		out += "]";
 		sendCORS(server, 200, "application/json", out); });
 
-	server.on("/api/config", HTTP_POST, [&server]()
+	server.on("/api/save_config", HTTP_POST, [&server]()
 						{
-		if (!server.hasArg("config")) {
+		Serial.println("Saving config: /config.json");
+		if (!server.hasArg("save_config")) {
 			g_oled->log(API_PREFIX "config: no body");
 			sendCORS(server, 400, "text/plain", "{\"status\": 0, \"result\": \"No config body\"}");
 			return;
 		}
-		String json = server.arg("config");
+		String json = server.arg("save_config");
 		if (ConfigLoader::saveConfig("/config.json", json)) {
 			g_oled->log(API_PREFIX "new config");
 			sendCORS(server, 200, "text/plain", "{\"status\": 1, \"result\": \"Config saved\"}");
@@ -280,4 +281,17 @@ void init_api(WebServer &server, WebSocketsServer &ws, Ukulele *ukulele, OledDis
 		} else {
 			sendCORS(server, 400, "text/plain", "{\"status\": 0, \"result\": \"Config failed\"}");
 		} });
+
+	server.on("/api/load_config", HTTP_GET, [&server]()
+						{
+		Serial.println("Loading config: /config.json");
+		StaticJsonDocument<2048> config;
+		if (!ConfigLoader::loadConfig("/config.json", config)) {
+			g_oled->log(API_PREFIX "config: load failed");
+			sendCORS(server, 404, "application/json", "{\"status\":0,\"result\":\"Config not found\"}");
+			return;
+		}
+		String out;
+		serializeJson(config, out);
+		sendCORS(server, 200, "application/json", out); });
 }

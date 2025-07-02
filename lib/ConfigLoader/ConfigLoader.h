@@ -31,15 +31,15 @@ struct ActuatorConfig
 	JsonObject options;
 };
 
-// struct FretterConfig
-// {
-// 	std::string type;
-// 	int pin_left;
-// 	int pin_right;
-// 	int bus = 0;
-// 	std::string name;
-// 	JsonObject options;
-// };
+struct FretterConfig
+{
+	std::string type;
+	int pin_left;
+	int pin_right;
+	int bus = 0;
+	std::string name;
+	JsonObject options;
+};
 
 struct InstrumentConfig
 {
