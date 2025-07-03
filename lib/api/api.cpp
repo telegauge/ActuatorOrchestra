@@ -33,6 +33,34 @@ void handle_pluck(int idx)
 	g_ukulele->pluck(idx);
 }
 
+void handle_plucks(String strings)
+{
+	// Remove brackets if present
+	strings.replace("[", "");
+	strings.replace("]", "");
+	int start = 0;
+	while (start < strings.length())
+	{
+		int comma = strings.indexOf(',', start);
+		String numStr;
+		if (comma == -1)
+		{
+			numStr = strings.substring(start);
+			start = strings.length();
+		}
+		else
+		{
+			numStr = strings.substring(start, comma);
+			start = comma + 1;
+		}
+		numStr.trim();
+		if (numStr.length() > 0)
+		{
+			handle_pluck(numStr.toInt());
+		}
+	}
+}
+
 void handle_fret(int fret, const String &pressed)
 {
 	g_oled->log((String(API_PREFIX "fret ") + fret).c_str());
@@ -132,7 +160,14 @@ void handle_websocket_event(WebSocketsServer &ws, uint8_t num, WStype_t type, ui
 		}
 		else if (strcmp(cmd, "pluck") == 0)
 		{
-			handle_pluck(doc["string"] | 0);
+			if (doc.containsKey("strings"))
+			{
+				handle_plucks(doc["strings"]);
+			}
+			else
+			{
+				handle_pluck(doc["string"] | 0);
+			}
 		}
 		else if (strcmp(cmd, "fret") == 0)
 		{
@@ -201,7 +236,14 @@ void init_api(WebServer &server, WebSocketsServer &ws, Ukulele *ukulele, OledDis
 	server.on("/api/pluck", HTTP_POST, [&server]()
 						{
 		int idx = server.hasArg("string") ? server.arg("string").toInt() : 0;
-		handle_pluck(idx);
+		if (server.hasArg("strings"))
+		{
+			handle_plucks(server.arg("strings"));
+		}
+		else
+		{
+			handle_pluck(idx);
+		}
 		sendCORS(server, 200, "text/plain", "Plucked"); });
 
 	server.on("/api/fret", HTTP_POST, [&server]()
