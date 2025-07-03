@@ -175,7 +175,7 @@ void loop()
 		String beat = "[----]";
 		beat[g_beat % 4 + 1] = '*';
 		String display = String(beat);
-		display += " ";
+		// display += " ";
 		display += String(g_beat);
 		oled.toolbar(display.c_str());
 	}

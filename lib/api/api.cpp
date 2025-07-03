@@ -243,7 +243,7 @@ void init_api(WebServer &server, WebSocketsServer &ws, Ukulele *ukulele, OledDis
 		String response = handle_battery();
 		sendCORS(server, 200, "text/plain", response); });
 
-	server.on("/api/home", HTTP_GET, [&server]()
+	server.on("/api/home", HTTP_POST, [&server]()
 						{
 		g_oled->log(API_PREFIX "home");
 		g_ukulele->home();

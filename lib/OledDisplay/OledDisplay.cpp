@@ -209,7 +209,7 @@ void OledDisplay::toolbar(const char *text)
 {
 	// if (!initialized)
 	// {
-	Serial.printf("Toolbar %s\n", text);
+	// Serial.printf("Toolbar %s\n", text);
 	display.fillRect(TOOLBAR_X, TOOLBAR_Y, TOOLBAR_WIDTH, TOOLBAR_HEIGHT, SH110X_WHITE);
 	display.setTextColor(SH110X_BLACK);
 	print(text, TOOLBAR_X + 2, TOOLBAR_Y + 2);

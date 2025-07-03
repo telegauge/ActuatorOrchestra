@@ -157,10 +157,10 @@
       <div class="result" id="result-battery"></div>
     </div>
     <div class="endpoint">
-      <b>GET <code>/api/home</code></b
+      <b>POST <code>/api/home</code></b
       ><br />
       <small>Return to home state (if supported by firmware).</small>
-      <form class="try" onsubmit="return send(event, 'GET','/api/home')">
+      <form class="try" onsubmit="return send(event, 'POST','/api/home')">
         <button type="submit">Home</button>
       </form>
       <div class="result" id="result-home"></div>
