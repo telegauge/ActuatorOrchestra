@@ -18,6 +18,7 @@
 WiFiClient wifi;
 Adafruit_PWMServoDriver pwm1 = Adafruit_PWMServoDriver(0x40);
 Adafruit_PWMServoDriver pwm2 = Adafruit_PWMServoDriver(0x41);
+Adafruit_PWMServoDriver pwm3 = Adafruit_PWMServoDriver(0x42);
 std::vector<Adafruit_PWMServoDriver *> pwms;
 
 String scanI2C();
@@ -26,6 +27,10 @@ TimingEngine timingEngine;
 OledDisplay oled;
 WebServer server(80);
 WebSocketsServer webSocket(81); // WebSocket server on port 81
+
+#define BEATS_PER_MINUTE 120
+unsigned long g_beat = 0;
+int g_elapsed_ms = 0;
 
 const int STRUM_SWING_DEGREES = 30;
 const int STRUM_DURATION_MS = 150;
@@ -40,6 +45,8 @@ void setup()
 	Serial.begin(115200);
 	delay(500); // wait for the servos to home, and the terminal to catch up
 	oled.begin();
+
+	Wire.begin();
 
 	oled.log("Booting...");
 
@@ -79,17 +86,22 @@ void setup()
 	// SERVO
 	Serial.printf("Servo 1 %d\n", pwm1.begin());
 	Serial.printf("Servo 2 %d\n", pwm2.begin());
+	Serial.printf("Servo 3 %d\n", pwm3.begin());
 	pwm1.setPWMFreq(50);
 	pwm2.setPWMFreq(50);
+	pwm3.setPWMFreq(50);
 	pwm1.setPWM(1, 0, 1000);
 	pwm2.setPWM(1, 0, 1000);
+	pwm3.setPWM(1, 0, 1000);
 	delay(1000);
 	pwm1.setPWM(1, 0, 0);
 	pwm2.setPWM(1, 0, 0);
+	pwm3.setPWM(1, 0, 0);
 
-	// Add two PWM servo drivers to the vector of drivers
-	pwms.push_back(&pwm1); // Add first PWM driver (0x40)
-	pwms.push_back(&pwm2); // Add second PWM driver (0x42)
+	// Add three PWM servo drivers to the vector of drivers
+	pwms.push_back(&pwm1); // 0x40
+	pwms.push_back(&pwm2); // 0x41
+	pwms.push_back(&pwm3); // 0x42
 	oled.log("Servo    OK");
 
 	// String devices = scanI2C();
@@ -153,6 +165,20 @@ void loop()
 {
 	server.handleClient();
 	webSocket.loop();
+
+	static unsigned long lastBeat = 0;
+	unsigned long now = millis();
+	if (now - lastBeat >= 60000 / BEATS_PER_MINUTE)
+	{
+		g_beat++;
+		lastBeat = now;
+		String beat = "[----]";
+		beat[g_beat % 4 + 1] = '*';
+		String display = String(beat);
+		display += " ";
+		display += String(g_beat);
+		oled.toolbar(display.c_str());
+	}
 }
 
 String scanI2C()
