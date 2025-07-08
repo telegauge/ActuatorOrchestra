@@ -81,7 +81,7 @@ void OledDisplay::begin()
 
 	printLogs();
 	display.display();
-	delay(500);
+	// delay(500);
 	// initGrid();
 	// initToolbar();
 }

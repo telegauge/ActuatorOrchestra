@@ -47,11 +47,11 @@ void Fretter::minmax(int duration_ms)
 {
 	Serial.printf("Fretter MinMax %s\n", _name.c_str());
 	actuate(0, 0);
-	delay(duration_ms);
-	actuate(180, 180);
-	delay(duration_ms);
-	actuate(HOME_POSITION, HOME_POSITION);
-	delay(duration_ms);
+	// delay(duration_ms);
+	// actuate(180, 180);
+	// delay(duration_ms);
+	// actuate(HOME_POSITION, HOME_POSITION);
+	// delay(duration_ms);
 }
 
 void Fretter::fret(int left_degrees, int right_degrees)

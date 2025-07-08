@@ -10,7 +10,7 @@
 
 #include "../lib/ConfigLoader/ConfigLoader.h"
 #include "../lib/ActuatorFactory/ActuatorFactory.h"
-#include "../lib/TimingEngine/TimingEngine.h"
+// #include "../lib/TimingEngine/TimingEngine.h"
 #include "../lib/OledDisplay/OledDisplay.h"
 #include "../lib/Ukulele/Ukulele.h"
 #include "../lib/api/api.h"
@@ -23,7 +23,7 @@ std::vector<Adafruit_PWMServoDriver *> pwms;
 
 String scanI2C();
 Ukulele *ukulele = nullptr;
-TimingEngine timingEngine;
+// TimingEngine timingEngine;
 OledDisplay oled;
 WebServer server(80);
 WebSocketsServer webSocket(81); // WebSocket server on port 81
@@ -90,13 +90,6 @@ void setup()
 	pwm1.setPWMFreq(50);
 	pwm2.setPWMFreq(50);
 	pwm3.setPWMFreq(50);
-	pwm1.setPWM(1, 0, 1000);
-	pwm2.setPWM(1, 0, 1000);
-	pwm3.setPWM(1, 0, 1000);
-	delay(1000);
-	pwm1.setPWM(1, 0, 0);
-	pwm2.setPWM(1, 0, 0);
-	pwm3.setPWM(1, 0, 0);
 
 	// Add three PWM servo drivers to the vector of drivers
 	pwms.push_back(&pwm1); // 0x40
@@ -104,33 +97,22 @@ void setup()
 	pwms.push_back(&pwm3); // 0x42
 	oled.log("Servo    OK");
 
-	// String devices = scanI2C();
-	// oled.log(devices.c_str());
-
-	JsonDocument config2;
-	if (!ConfigLoader::loadConfig("/config.json", config2))
+	JsonDocument config;
+	if (!ConfigLoader::loadConfig("/config.json", config))
 	{
 		Serial.println("Loading default config: config_default.json");
-		if (!ConfigLoader::loadConfig("/config_default.json", config2))
+		if (!ConfigLoader::loadConfig("/config_default.json", config))
 		{
 			oled.log("Config  FAIL");
 			Serial.println("Failed to load config: config.json");
 			return;
 		}
 	}
-	oled.log(config2["name"].as<const char *>());
+	oled.log(config["name"].as<const char *>());
 
-	// InstrumentConfig config;
-	// if (!ConfigLoader::loadConfig("/ukulele.json", config))
-	// {
-	// 	// TO upload: pio run -t uploadfs
-	// 	oled.log("Config FAIL");
-	// 	Serial.println("Failed to load config");
-	// 	return;
-	// }
 	oled.log("Config   OK");
 
-	ukulele = new Ukulele(config2, pwms, &oled);
+	ukulele = new Ukulele(config, pwms, &oled);
 	ukulele->begin();
 	ukulele->home();
 
@@ -143,24 +125,6 @@ void setup()
 	oled.log("Ready!");
 }
 
-bool Bools[][4] = {
-		{false, false, false, false}, // 0
-		{false, false, false, true},	// 1
-		{false, false, true, false},	// 2
-		{false, false, true, true},		// 3
-		{false, true, false, false},	// 4
-		{false, true, false, true},		// 5
-		{false, true, true, false},		// 6
-		{false, true, true, true},		// 7
-		{true, false, false, false},	// 8
-		{true, false, false, true},		// 9
-		{true, false, true, false},		// 10
-		{true, false, true, true},		// 11
-		{true, true, false, false},		// 12
-		{true, true, false, true},		// 13
-		{true, true, true, false},		// 14
-		{true, true, true, true}			// 15
-};
 void loop()
 {
 	server.handleClient();

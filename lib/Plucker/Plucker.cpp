@@ -33,11 +33,11 @@ void Plucker::pluck(int duration_ms)
 	int overshoot_degrees = 2;
 	// Serial.printf("Plucking %d º%d\n", _pin, HOME_POSITION + _direction * swing_degrees);
 	actuate(HOME_POSITION + _direction * swing_degrees);
-	if (duration_ms > 0)
-	{
-		delay(duration_ms);
-		actuate(HOME_POSITION - _direction * OVERSHOOT_DEGREES);
-	}
+	// if (duration_ms > 0)
+	// {
+	// 	delay(duration_ms);
+	// 	actuate(HOME_POSITION - _direction * OVERSHOOT_DEGREES);
+	// }
 	_direction = -_direction;
 }
 

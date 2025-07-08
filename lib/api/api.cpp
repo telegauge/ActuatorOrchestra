@@ -14,6 +14,8 @@ static Ukulele *g_ukulele = nullptr;
 static OledDisplay *g_oled = nullptr;
 static bool *g_is_paused = nullptr;
 
+unsigned long last_time = 0;
+
 void sendCORS(WebServer &server, int code, const char *type, const String &body)
 {
 	server.sendHeader("Access-Control-Allow-Origin", "*");
@@ -29,7 +31,10 @@ void handle_strum()
 
 void handle_pluck(int idx)
 {
-	g_oled->log((String(API_PREFIX "pluck ") + idx).c_str());
+	unsigned long delta_t = millis() - last_time;
+	last_time = millis();
+	Serial.printf("Pluck %d %d\n", idx, delta_t);
+	// g_oled->log((String(API_PREFIX "pluck ") + idx + " " + delta_t).c_str());
 	g_ukulele->pluck(idx);
 }
 
