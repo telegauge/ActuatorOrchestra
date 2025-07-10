@@ -102,6 +102,7 @@ void setup()
 	WiFi.setHostname(wifiConfig.device_name.c_str());
 	oled.log(wifiConfig.device_name.c_str());
 	WiFi.begin(wifiConfig.ssid.c_str(), wifiConfig.password.c_str());
+	WiFi.setSleep(false); // maybe turn on after timeouts
 	while (WiFi.status() != WL_CONNECTED)
 	{
 		delay(500);
@@ -177,7 +178,7 @@ void loop()
 
 	// static unsigned long lastBeat = 0;
 	// unsigned long now = millis();
-	// if (now - lastBeat >= 60000 / BEATS_PER_MINUTE)
+	// if (now - lastBeat >= 4000 / BEATS_PER_MINUTE)
 	// {
 	// 	g_beat++;
 	// 	lastBeat = now;
@@ -187,6 +188,7 @@ void loop()
 	// 	// display += " ";
 	// 	display += String(g_beat);
 	// 	oled.toolbar(display.c_str());
+	// 	// ukulele->pluck(g_beat % 4 + 1);
 	// }
 }
 
