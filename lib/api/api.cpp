@@ -1,11 +1,18 @@
 #include "api.h"
 #include "../Ukulele/Ukulele.h"
 #include "../OledDisplay/OledDisplay.h"
+#include "../TimingEngine/TimingEngine.h"
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 
 extern float readBatteryPercent();
 extern String scanI2C();
+extern QueueHandle_t pluckQueue;
+struct PluckRequest
+{
+	int idx;
+	unsigned long request_time;
+};
 
 #define API_PREFIX "@"
 
@@ -13,6 +20,7 @@ extern String scanI2C();
 static Ukulele *g_ukulele = nullptr;
 static OledDisplay *g_oled = nullptr;
 static bool *g_is_paused = nullptr;
+static TimingEngine *g_timingEngine = nullptr;
 
 unsigned long last_time = 0;
 
@@ -31,16 +39,12 @@ void handle_strum()
 
 void handle_pluck(int idx)
 {
-	unsigned long delta_t = millis() - last_time;
-	last_time = millis();
-	Serial.printf("Pluck %d %d\n", idx, delta_t);
-	// g_oled->log((String(API_PREFIX "pluck ") + idx + " " + delta_t).c_str());
-	g_ukulele->pluck(idx);
+	PluckRequest req = {idx, millis()};
+	xQueueSendToBack(pluckQueue, &req, 0);
 }
 
 void handle_plucks(String strings)
 {
-	// Remove brackets if present
 	strings.replace("[", "");
 	strings.replace("]", "");
 	int start = 0;
@@ -61,7 +65,8 @@ void handle_plucks(String strings)
 		numStr.trim();
 		if (numStr.length() > 0)
 		{
-			handle_pluck(numStr.toInt());
+			PluckRequest req = {numStr.toInt(), millis()};
+			xQueueSendToBack(pluckQueue, &req, 0);
 		}
 	}
 }
@@ -94,7 +99,7 @@ void handle_play()
 
 String handle_scanI2C()
 {
-	// g_oled->log(API_PREFIX "scanI2C");
+	Serial.println("scanI2C");
 	String devices = scanI2C();
 	String json = "{";
 	json += "\"devices\":\"" + devices + "\"";
@@ -140,6 +145,8 @@ void handle_root(WebServer &server)
 
 void handle_websocket_event(WebSocketsServer &ws, uint8_t num, WStype_t type, uint8_t *payload, size_t length)
 {
+	Serial.printf("WS Event %d %d %d	\n", num, type, millis() - last_time);
+	last_time = millis();
 	switch (type)
 	{
 	case WStype_DISCONNECTED:
@@ -215,12 +222,15 @@ void handle_websocket_event(WebSocketsServer &ws, uint8_t num, WStype_t type, ui
 	}
 }
 
-void init_api(WebServer &server, WebSocketsServer &ws, Ukulele *ukulele, OledDisplay *oled, bool *is_paused)
+void init_api(WebServer &server, WebSocketsServer &ws, Ukulele *ukulele, OledDisplay *oled, bool *is_paused, TimingEngine *timingEngine)
 {
 	// Store pointers for WebSocket callbacks
 	g_ukulele = ukulele;
 	g_oled = oled;
 	g_is_paused = is_paused;
+	g_timingEngine = timingEngine;
+
+	unsigned long last_time = millis();
 
 	// Setup WebSocket server
 	ws.onEvent([&ws](uint8_t num, WStype_t type, uint8_t *payload, size_t length)

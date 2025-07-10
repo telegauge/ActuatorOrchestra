@@ -21,7 +21,7 @@ public:
 
 private:
 	std::vector<ScheduledEvent> events;
-	uint32_t startTime;
+	// TimingEngine now uses absolute millis() for event times
 	bool running = false;
 };
 

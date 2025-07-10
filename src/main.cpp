@@ -7,10 +7,12 @@
 #include <WiFi.h>
 #include <Wire.h>
 #include <LittleFS.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
 
 #include "../lib/ConfigLoader/ConfigLoader.h"
 #include "../lib/ActuatorFactory/ActuatorFactory.h"
-// #include "../lib/TimingEngine/TimingEngine.h"
+#include "../lib/TimingEngine/TimingEngine.h"
 #include "../lib/OledDisplay/OledDisplay.h"
 #include "../lib/Ukulele/Ukulele.h"
 #include "../lib/api/api.h"
@@ -23,7 +25,7 @@ std::vector<Adafruit_PWMServoDriver *> pwms;
 
 String scanI2C();
 Ukulele *ukulele = nullptr;
-// TimingEngine timingEngine;
+TimingEngine timingEngine;
 OledDisplay oled;
 WebServer server(80);
 WebSocketsServer webSocket(81); // WebSocket server on port 81
@@ -39,6 +41,34 @@ bool paused = true;
 bool pressed[] = {false, false, false, false};
 
 #define BATTERY_PIN 35
+
+struct PluckRequest
+{
+	int idx;
+	unsigned long request_time;
+};
+
+QueueHandle_t pluckQueue;
+
+void TimingTask(void *pvParameters)
+{
+	PluckRequest req;
+	static unsigned long last_pluck_time = 0;
+	while (true)
+	{
+		if (xQueueReceive(pluckQueue, &req, 0) == pdTRUE)
+		{
+			unsigned long exec_time = millis();
+			unsigned long interval = last_pluck_time ? (exec_time - last_pluck_time) : 0;
+			last_pluck_time = exec_time;
+			Serial.printf("Pluck %d ms:%lu\n", req.idx, interval);
+			if (ukulele)
+				ukulele->pluck(req.idx);
+		}
+		timingEngine.update();
+		vTaskDelay(1); // 1ms tick
+	}
+}
 
 void setup()
 {
@@ -83,6 +113,19 @@ void setup()
 	ip.replace("192.168.", "..."); // hide the IP address
 	oled.log(ip.c_str());					 // Convert IPAddress to String before logging
 
+	pluckQueue = xQueueCreate(16, sizeof(PluckRequest));
+	timingEngine.start();
+	xTaskCreatePinnedToCore(
+			TimingTask,		// Task function
+			"TimingTask", // Name
+			2048,					// Stack size
+			NULL,					// Parameters
+			1,						// Priority
+			NULL,					// Task handle
+			1							// Core (0 or 1)
+	);
+	oled.log("Timing   OK");
+
 	// SERVO
 	Serial.printf("Servo 1 %d\n", pwm1.begin());
 	Serial.printf("Servo 2 %d\n", pwm2.begin());
@@ -116,7 +159,7 @@ void setup()
 	ukulele->begin();
 	ukulele->home();
 
-	init_api(server, webSocket, ukulele, &oled, &paused);
+	init_api(server, webSocket, ukulele, &oled, &paused, &timingEngine);
 	oled.log("API      OK");
 
 	// oled.toolbar(paused ? "xx" : "yy");
@@ -130,19 +173,21 @@ void loop()
 	server.handleClient();
 	webSocket.loop();
 
-	static unsigned long lastBeat = 0;
-	unsigned long now = millis();
-	if (now - lastBeat >= 60000 / BEATS_PER_MINUTE)
-	{
-		g_beat++;
-		lastBeat = now;
-		String beat = "[----]";
-		beat[g_beat % 4 + 1] = '*';
-		String display = String(beat);
-		// display += " ";
-		display += String(g_beat);
-		oled.toolbar(display.c_str());
-	}
+	// timingEngine.update(); // Now handled by FreeRTOS task
+
+	// static unsigned long lastBeat = 0;
+	// unsigned long now = millis();
+	// if (now - lastBeat >= 60000 / BEATS_PER_MINUTE)
+	// {
+	// 	g_beat++;
+	// 	lastBeat = now;
+	// 	String beat = "[----]";
+	// 	beat[g_beat % 4 + 1] = '*';
+	// 	String display = String(beat);
+	// 	// display += " ";
+	// 	display += String(g_beat);
+	// 	oled.toolbar(display.c_str());
+	// }
 }
 
 String scanI2C()

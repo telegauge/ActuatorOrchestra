@@ -30,7 +30,7 @@ void Fretter::actuate(int left_degrees, int right_degrees)
 	int right_pulse = map(right_degrees, 0, 180, SERVO_MIN, SERVO_MAX);
 	int rs1 = _pwm->setPWM(_pin_left, 0, left_pulse);
 	int rs2 = _pwm->setPWM(_pin_right, 0, right_pulse);
-	Serial.printf("    -> Fretter actuate %s %d %d %d %d\n", _name.c_str(), left_degrees, right_degrees, rs1, rs2);
+	// Serial.printf("    -> Fretter actuate %s %d %d %d %d\n", _name.c_str(), left_degrees, right_degrees, rs1, rs2);
 }
 void Fretter::actuate(int value)
 {
